@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class ThreadMonitor implements Runnable{
 
     private final ArrayList<String> urls;
-    private final ArrayList<String> keywords;
+    private final HashMap<String, ArrayList<String>> keyMap;
     private final ArrayList<Thread> checkerThreads;
     private final ArrayList<Integer> hashes;
     private final HashMap<URLChecker, Thread> threadMap;
@@ -14,11 +14,7 @@ public class ThreadMonitor implements Runnable{
     public ThreadMonitor(GUI gui){
         this.gui = gui;
         urls = new ArrayList<>();
-        urls.add("http://scpfoundation.ru/");
-        urls.add( "https://xakep.ru");
-        keywords = new ArrayList<>();
-        keywords.add("devops");
-        keywords.add("scp");
+        keyMap = new HashMap<>();
         checkerThreads = new ArrayList<>();
         threadMap = new HashMap<>();
         hashes = new ArrayList<>();
@@ -39,6 +35,7 @@ public class ThreadMonitor implements Runnable{
     }
 
     synchronized private void createThread(String url){
+        ArrayList<String> keywords = keyMap.get(url);
         URLChecker checker = new URLChecker(this, url, keywords);
         Thread thread = new Thread(checker);
         checkerThreads.add(thread);
@@ -58,18 +55,20 @@ public class ThreadMonitor implements Runnable{
         return hashes.contains(str.hashCode());
     }
 
-    public void addKeyword(String keyword){
-        keywords.add(keyword.toLowerCase());
+    public void addKeyword(String url, String keyword){
+        keyMap.get(url).add(keyword.toLowerCase());
         for (URLChecker checker: threadMap.keySet()) {
-            checker.updateKeywords(keywords);
-        }
-        for (Thread thread: checkerThreads) {
-            thread.interrupt();
+            if (checker.getURL().equals(url)){
+                checker.updateKeywords(keyword);
+                threadMap.get(checker).interrupt();
+                break;
+            }
         }
     }
 
     public void addUrl(String url){
         urls.add(url);
+        keyMap.put(url, new ArrayList<String>());
         createThread(url);
     }
 

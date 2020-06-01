@@ -46,6 +46,7 @@ public class URLChecker implements Runnable {
 
     synchronized private boolean search() throws IOException{
         boolean found = false;
+        if(!keywords.isEmpty()){
             for (String word : keywords) { //search every listed website for every listed word
                 Document doc = Jsoup.connect(url).get();
                 String body = doc.body().text().toLowerCase();
@@ -70,12 +71,15 @@ public class URLChecker implements Runnable {
                     }
                 }
             }
+        }
         return found;
     }
 
-    synchronized public void updateKeywords(ArrayList<String> keywords){
-        this.keywords = keywords;
+    synchronized public void updateKeywords(String keywordIn){
+        keywords.add(keywordIn);
         hashingRequired = true;
     }
+
+    public String getURL(){ return url; }
 
 }
