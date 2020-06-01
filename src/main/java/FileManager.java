@@ -1,13 +1,12 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 public class FileManager {
 
@@ -31,23 +30,23 @@ public class FileManager {
     }
 
     public String getSaveData(){
-        HashMap<String, ArrayList<String>> keyMap = monitor.getKeyMap();
-        ArrayList<Integer> hashes = monitor.getHashes();
+        HashMap<String, ArrayList<String>> urlMap = monitor.getUrlMap();
+        List<Integer> hashes = monitor.getHashes();
 
         StringBuilder builder = new StringBuilder();
-        SimpleDateFormat sdt = new SimpleDateFormat("dd:MM:yyyy HH:mm:ss");
+        SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         Date now = new Date();
-        builder.append("---URL_Update_Checker save file " + sdt.format(now) + "---" + "\n");
+        builder.append("---URL_Update_Checker Save File " + sdt.format(now) + "---" + "\n");
         builder.append("<Hashed values>" + "\n");
         for (Integer hash: hashes) {
-            builder.append(hash + "\n");
+            builder.append("#" + hash + "\n");
         }
         builder.append("</Hashed values>" + "\n");
         builder.append("<URLs + keywords>" + "\n");
-        for (String url: keyMap.keySet()) {
+        for (String url: urlMap.keySet()) {
             builder.append(url + "|");
-            if(!keyMap.get(url).isEmpty()){
-                for (String keyword: keyMap.get(url)) {
+            if(!urlMap.get(url).isEmpty()){
+                for (String keyword: urlMap.get(url)) {
                     builder.append(keyword + ",");
                 }
                 builder.deleteCharAt(builder.lastIndexOf(","));
@@ -57,5 +56,27 @@ public class FileManager {
         builder.append("</URLs + keywords>" + "\n");
 
         return builder.toString();
+    }
+
+    public ArrayList<Integer> loadHashes() throws IOException {
+        List<String> lines = Files.readAllLines(pathToSave);
+        lines.removeIf(line -> !line.startsWith("#"));
+        ArrayList<Integer> hashes = new ArrayList<>();
+        for (String line: lines) {
+            hashes.add(Integer.valueOf(line.replaceAll("#", "")));
+        }
+        return hashes;
+    }
+    public HashMap<String, ArrayList<String>> loadKeyMap() throws IOException{
+        List<String> lines = Files.readAllLines(pathToSave);
+        lines.removeIf(line -> !line.contains("|"));
+        HashMap<String, ArrayList<String>> keyMap = new HashMap<>();
+        for(String line: lines){
+            String url = line.substring(0, line.indexOf('|'));
+            ArrayList<String> keywords;
+            keywords = new ArrayList<>(Arrays.asList(line.substring(line.indexOf('|') + 1).split(",")));
+            keyMap.put(url, keywords);
+        }
+        return keyMap;
     }
 }

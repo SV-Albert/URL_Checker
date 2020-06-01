@@ -21,7 +21,7 @@ public class GUIController {
     @FXML private MenuItem refreshMenu;
     private ThreadMonitor monitor;
     private final URLFormatter formatter = new URLFormatter();
-    private final HashMap<String, ArrayList<String>> urlMap = new HashMap<>();
+    private HashMap<String, ArrayList<String>> urlMap = new HashMap<>();
 
 
     @FXML
@@ -57,8 +57,13 @@ public class GUIController {
 
     @FXML
     private void updateKeyView(){
-        String selectedUrl = urlView.getSelectionModel().getSelectedItem();
-        keyView.getItems().setAll(urlMap.get(selectedUrl));
+        if (urlView.getSelectionModel().isEmpty()){
+            keyView.getItems().setAll(new ArrayList<>());
+        }
+        else{
+            String selectedUrl = urlView.getSelectionModel().getSelectedItem();
+            keyView.getItems().setAll(urlMap.get(selectedUrl));
+        }
     }
 
     @FXML
@@ -108,4 +113,9 @@ public class GUIController {
         });
     }
 
+    public void setUrlMap(HashMap<String, ArrayList<String>> urlMap){
+        this.urlMap = urlMap;
+        urlView.getItems().setAll(urlMap.keySet());
+        updateKeyView();
+    }
 }

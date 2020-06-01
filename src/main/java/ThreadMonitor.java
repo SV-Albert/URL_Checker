@@ -8,24 +8,23 @@ import java.util.HashMap;
 
 public class ThreadMonitor implements Runnable{
 
-    private final ArrayList<String> urls;
-    private final HashMap<String, ArrayList<String>> keyMap;
+    private HashMap<String, ArrayList<String>> urlMap;
     private final ArrayList<Thread> checkerThreads;
-    private final ArrayList<Integer> hashes;
+    private ArrayList<Integer> hashes;
     private final HashMap<URLChecker, Thread> threadMap;
     private final GUI gui;
     private final FileManager fileManager;
 
     public ThreadMonitor(GUI gui){
         this.gui = gui;
-        urls = new ArrayList<>();
-        keyMap = new HashMap<>();
+        urlMap = new HashMap<>();
         checkerThreads = new ArrayList<>();
         threadMap = new HashMap<>();
         hashes = new ArrayList<>();
         Path path = Paths.get("src/main/resources/url_checker_data.txt"); //temporary
         fileManager = new FileManager(path, this);
-//        repopulate();
+        load();
+        gui.repopulateViews(urlMap);
     }
 
     @Override
@@ -34,15 +33,15 @@ public class ThreadMonitor implements Runnable{
     }
 
     public void startThreads(){
-        if (!urls.isEmpty()){
-            for (String url: urls) {
+        if (!urlMap.keySet().isEmpty()){
+            for (String url: urlMap.keySet()) {
                 createThread(url);
             }
         }
     }
 
     synchronized private void createThread(String url){
-        ArrayList<String> keywords = keyMap.get(url);
+        ArrayList<String> keywords = urlMap.get(url);
         URLChecker checker = new URLChecker(this, url, keywords);
         Thread thread = new Thread(checker);
         checkerThreads.add(thread);
@@ -74,8 +73,7 @@ public class ThreadMonitor implements Runnable{
     }
 
     public void addUrl(String url){
-        urls.add(url);
-        keyMap.put(url, new ArrayList<String>());
+        urlMap.put(url, new ArrayList<String>());
         createThread(url);
         save();
     }
@@ -98,16 +96,27 @@ public class ThreadMonitor implements Runnable{
         return hashes;
     }
 
-    public HashMap<String, ArrayList<String>> getKeyMap() {
-        return keyMap;
+    public HashMap<String, ArrayList<String>> getUrlMap() {
+        return urlMap;
     }
 
-    public synchronized void save(){
+    synchronized public void save(){
         try {
             fileManager.save();
         }
         catch (IOException e){
             error("Failed to save the current state");
         }
+    }
+
+    synchronized public void load(){
+        try{
+            hashes = fileManager.loadHashes();
+            urlMap = fileManager.loadKeyMap();
+        }
+        catch (IOException e){
+            error("Could not load the save data");
+        }
+
     }
 }

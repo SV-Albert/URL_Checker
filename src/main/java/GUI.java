@@ -9,6 +9,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GUI extends Application {
 
@@ -72,6 +75,10 @@ public class GUI extends Application {
                 .text(message)
                 .hideAfter(Duration.INDEFINITE)
                 .show();
+    }
+
+    public void repopulateViews(HashMap<String, ArrayList<String>> urlMap){
+        controller.setUrlMap(urlMap);
     }
 
 }
