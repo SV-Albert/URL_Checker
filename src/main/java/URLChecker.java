@@ -26,6 +26,7 @@ public class URLChecker implements Runnable {
                     search();
                     System.out.println("Hashing complete");
                     hashingRequired = false;
+                    monitor.save();
                 }
                 boolean found = search();
                 if(found){monitor.matchFound(url, lastMatch);}
@@ -75,7 +76,7 @@ public class URLChecker implements Runnable {
         return found;
     }
 
-    synchronized public void updateKeywords(String keywordIn){
+    synchronized public void addKeyword(String keywordIn){
         keywords.add(keywordIn);
         hashingRequired = true;
     }

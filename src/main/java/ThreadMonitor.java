@@ -1,4 +1,8 @@
 import javafx.application.Platform;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,6 +14,7 @@ public class ThreadMonitor implements Runnable{
     private final ArrayList<Integer> hashes;
     private final HashMap<URLChecker, Thread> threadMap;
     private final GUI gui;
+    private final FileManager fileManager;
 
     public ThreadMonitor(GUI gui){
         this.gui = gui;
@@ -18,6 +23,8 @@ public class ThreadMonitor implements Runnable{
         checkerThreads = new ArrayList<>();
         threadMap = new HashMap<>();
         hashes = new ArrayList<>();
+        Path path = Paths.get("src/main/resources/url_checker_data.txt"); //temporary
+        fileManager = new FileManager(path, this);
 //        repopulate();
     }
 
@@ -56,20 +63,21 @@ public class ThreadMonitor implements Runnable{
     }
 
     public void addKeyword(String url, String keyword){
-        keyMap.get(url).add(keyword.toLowerCase());
         for (URLChecker checker: threadMap.keySet()) {
             if (checker.getURL().equals(url)){
-                checker.updateKeywords(keyword);
+                checker.addKeyword(keyword);
                 threadMap.get(checker).interrupt();
                 break;
             }
         }
+        save();
     }
 
     public void addUrl(String url){
         urls.add(url);
         keyMap.put(url, new ArrayList<String>());
         createThread(url);
+        save();
     }
 
     synchronized public void matchFound(String url, String keyword){
@@ -86,4 +94,20 @@ public class ThreadMonitor implements Runnable{
         }
     }
 
+    public ArrayList<Integer> getHashes() {
+        return hashes;
+    }
+
+    public HashMap<String, ArrayList<String>> getKeyMap() {
+        return keyMap;
+    }
+
+    public synchronized void save(){
+        try {
+            fileManager.save();
+        }
+        catch (IOException e){
+            error("Failed to save the current state");
+        }
+    }
 }

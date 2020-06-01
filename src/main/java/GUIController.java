@@ -73,9 +73,9 @@ public class GUIController {
             String key = keyField.getText();
             if (key != null) {
                 String selectedUrl = urlView.getSelectionModel().getSelectedItem();
-                if(!urlMap.get(selectedUrl).contains(key)){
-                    urlMap.get(selectedUrl).add(key);
-                    monitor.addKeyword(selectedUrl, key);
+                if(!urlMap.get(selectedUrl).contains(key.toLowerCase())){
+                    urlMap.get(selectedUrl).add(key.toLowerCase());
+                    monitor.addKeyword(selectedUrl, key.toLowerCase());
                     updateKeyView();
                     keyField.clear();
                 }
