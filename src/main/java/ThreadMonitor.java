@@ -38,7 +38,7 @@ public class ThreadMonitor implements Runnable{
         }
     }
 
-    private void createThread(String url){
+    synchronized private void createThread(String url){
         URLChecker checker = new URLChecker(this, url, keywords);
         Thread thread = new Thread(checker);
         checkerThreads.add(thread);
@@ -73,8 +73,8 @@ public class ThreadMonitor implements Runnable{
         createThread(url);
     }
 
-    synchronized public void matchFound(String url){
-        Platform.runLater(() -> gui.successNotification(url));
+    synchronized public void matchFound(String url, String keyword){
+        Platform.runLater(() -> gui.successNotification(url, keyword));
     }
 
     synchronized public void error(String message){

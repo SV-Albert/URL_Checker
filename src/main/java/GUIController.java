@@ -3,6 +3,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class GUIController {
 
@@ -10,6 +12,7 @@ public class GUIController {
     @FXML private TextField keyField;
     @FXML private ListView<String> urlView;
     @FXML private ListView<String> keyView;
+    @FXML private ListView<String> matchesView;
     @FXML private MenuItem refreshMenu;
     private ThreadMonitor monitor;
     private final URLFormatter formatter = new URLFormatter();
@@ -23,7 +26,7 @@ public class GUIController {
                 estConnection = formatter.pingURL(url);
             }
             catch (IOException e){
-                monitor.error("Unable to connect to the URL E");
+                monitor.error("Unable to connect to the URL");
             }
             if(estConnection){
                 urlView.getItems().add(url);
@@ -52,6 +55,12 @@ public class GUIController {
 
     @FXML
     public MenuItem getRefreshMenuItem(){ return refreshMenu; }
+
+    public void addMatch(String url, String keyword){
+        SimpleDateFormat sdt = new SimpleDateFormat("HH:mm:ss");
+        Date now = new Date();
+        matchesView.getItems().add(url + ": " + keyword + " at " + sdt.format(now));
+    }
 
     public void setMonitor(ThreadMonitor monitor){
         this.monitor = monitor;

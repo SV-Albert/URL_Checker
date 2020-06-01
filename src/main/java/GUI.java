@@ -13,6 +13,8 @@ import java.io.IOException;
 public class GUI extends Application {
 
     private Stage stage;
+    private GUIController controller;
+
 
     public static void main(String[] args) {
         launch(args);
@@ -30,7 +32,7 @@ public class GUI extends Application {
             failNotification("Application start failed");
         }
 
-        GUIController controller = controllerLoader.getController();
+        controller = controllerLoader.getController();
         ThreadMonitor monitorObject = new ThreadMonitor(this);
         controller.setMonitor(monitorObject);
         controller.getRefreshMenuItem().setOnAction(e -> monitorObject.refresh());
@@ -50,12 +52,13 @@ public class GUI extends Application {
         notifyAll();
     }
 
-    public void successNotification(String url){
+    public void successNotification(String url, String keyword){
+        controller.addMatch(url, keyword);
         Notifications.create()
                 .darkStyle()
                 .position(Pos.BOTTOM_RIGHT)
                 .title("Match found!")
-                .text("Match found at " + url)
+                .text("Match found at " + url + " on word " + keyword)
                 .onAction(e -> getHostServices().showDocument(url))
                 .hideAfter(Duration.seconds(5))
                 .show();
@@ -69,7 +72,6 @@ public class GUI extends Application {
                 .text(message)
                 .hideAfter(Duration.INDEFINITE)
                 .show();
-
     }
 
 }

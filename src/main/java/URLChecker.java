@@ -9,6 +9,7 @@ public class URLChecker implements Runnable {
     private ArrayList<String> keywords;
     private final ThreadMonitor monitor;
     private boolean hashingRequired;
+    private String lastMatch;
 
     public URLChecker(ThreadMonitor monitor, String url, ArrayList<String> keywords){
         this.monitor = monitor;
@@ -27,7 +28,7 @@ public class URLChecker implements Runnable {
                     hashingRequired = false;
                 }
                 boolean found = search();
-                if(found){monitor.matchFound(url);}
+                if(found){monitor.matchFound(url, lastMatch);}
             }
             catch (IOException e){
                 monitor.error("Could not access " + url);
@@ -43,7 +44,7 @@ public class URLChecker implements Runnable {
         }
     }
 
-    private synchronized boolean search() throws IOException{
+    synchronized private boolean search() throws IOException{
         boolean found = false;
             for (String word : keywords) { //search every listed website for every listed word
                 Document doc = Jsoup.connect(url).get();
@@ -63,6 +64,7 @@ public class URLChecker implements Runnable {
                         if (!monitor.isExcluded(hashStr)) {
                             System.out.println(url + " " + word + " " + matchInd);
                             monitor.exclude(hashStr);
+                            lastMatch = word;
                             found = true;
                         }
                     }
@@ -71,7 +73,7 @@ public class URLChecker implements Runnable {
         return found;
     }
 
-    public synchronized void updateKeywords(ArrayList<String> keywords){
+    synchronized public void updateKeywords(ArrayList<String> keywords){
         this.keywords = keywords;
         hashingRequired = true;
     }
