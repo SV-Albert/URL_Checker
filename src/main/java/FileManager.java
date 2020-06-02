@@ -9,10 +9,10 @@ import java.util.*;
 public class FileManager {
 
     private Path pathToSave;
-    private ThreadMonitor monitor;
+    private Monitor monitor;
 
 
-    public FileManager(Path path, ThreadMonitor monitor){
+    public FileManager(Path path, Monitor monitor){
         pathToSave = path;
         this.monitor = monitor;
     }
@@ -52,6 +52,11 @@ public class FileManager {
             builder.append("\n");
         }
         builder.append("</URLs + keywords>" + "\n");
+        builder.append("<Logs>" + "\n");
+        for (String logEntry: monitor.getLogs()) {
+            builder.append("~" + logEntry + "\n");
+        }
+        builder.append("</Logs>" + "\n");
 
         return builder.toString();
     }
@@ -71,10 +76,19 @@ public class FileManager {
         HashMap<String, ArrayList<String>> keyMap = new HashMap<>();
         for(String line: lines){
             String url = line.substring(0, line.indexOf('|'));
-            ArrayList<String> keywords;
-            keywords = new ArrayList<>(Arrays.asList(line.substring(line.indexOf('|') + 1).split(",")));
+            ArrayList<String> keywords = new ArrayList<>(Arrays.asList(line.substring(line.indexOf('|') + 1).split(",")));
             keyMap.put(url, keywords);
         }
         return keyMap;
+    }
+
+    public ArrayList<String> loadLogs() throws IOException{
+        List<String> lines = Files.readAllLines(pathToSave);
+        lines.removeIf(line -> !line.contains("~"));
+        ArrayList<String> logs = new ArrayList<>();
+        for(String line: lines){
+            logs.add(line.substring(1));
+        }
+        return logs;
     }
 }

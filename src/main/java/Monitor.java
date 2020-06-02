@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class ThreadMonitor implements Runnable{
+public class Monitor implements Runnable{
 
     private HashMap<String, ArrayList<String>> urlMap;
     private ArrayList<Integer> hashes;
@@ -14,8 +14,9 @@ public class ThreadMonitor implements Runnable{
     private final HashMap<String, URLChecker> checkerMap;
     private final Root root;
     private final FileManager fileManager;
+    private ArrayList<String> matchLogs;
 
-    public ThreadMonitor(Root root){
+    public Monitor(Root root){
         this.root = root;
         urlMap = new HashMap<>();
         threadMap = new HashMap<>();
@@ -24,7 +25,7 @@ public class ThreadMonitor implements Runnable{
         Path path = Paths.get("src/main/resources/url_checker_data.txt"); //temporary
         fileManager = new FileManager(path, this);
         load();
-        root.repopulateViews(urlMap);
+        root.repopulateViews(urlMap, matchLogs);
     }
 
     @Override
@@ -64,6 +65,7 @@ public class ThreadMonitor implements Runnable{
 
     synchronized public void matchFound(String url, String keyword){
         Platform.runLater(() -> root.successNotification(url, keyword));
+        save();
     }
 
     synchronized public void error(String message){
@@ -97,6 +99,7 @@ public class ThreadMonitor implements Runnable{
         try{
             hashes = fileManager.loadHashes();
             urlMap = fileManager.loadKeyMap();
+            matchLogs = fileManager.loadLogs();
         }
         catch (IOException e){
             error("Could not load the save data");
@@ -108,13 +111,11 @@ public class ThreadMonitor implements Runnable{
         URLChecker checker = checkerMap.get(url);
         checker.requestHashing();
         threadMap.get(checker).interrupt();
-        save();
     }
 
     public void addUrl(String url){
         urlMap.put(url, new ArrayList<String>());
         createThread(url);
-        save();
     }
 
     public void deleteKeyword(String url){
@@ -124,13 +125,18 @@ public class ThreadMonitor implements Runnable{
         checker.clearHashes();
         checker.requestHashing();
         threadMap.get(checker).interrupt();
-        save();
     }
 
     public void deleteUrl(String url){
         URLChecker checker = checkerMap.get(url);
         hashes.removeAll(checker.getHashes());
         checker.stopRunning();
-        save();
     }
+
+    public void setLogs(ArrayList<String> logs){
+        matchLogs = logs;
+    }
+
+    public ArrayList<String> getLogs(){ return matchLogs; }
+
 }

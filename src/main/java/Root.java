@@ -1,5 +1,4 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -9,7 +8,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -36,7 +34,7 @@ public class Root extends Application {
         }
 
         controller = controllerLoader.getController();
-        ThreadMonitor monitorObject = new ThreadMonitor(this);
+        Monitor monitorObject = new Monitor(this);
         controller.setMonitor(monitorObject);
         controller.getRefreshMenuItem().setOnAction(e -> monitorObject.refresh());
 
@@ -51,7 +49,7 @@ public class Root extends Application {
     }
 
     public void successNotification(String url, String keyword){
-        controller.addMatch(url, keyword);
+        controller.addLogEntry(url, keyword);
         Notifications.create()
                 .darkStyle()
                 .position(Pos.BOTTOM_RIGHT)
@@ -72,8 +70,8 @@ public class Root extends Application {
                 .show();
     }
 
-    public void repopulateViews(HashMap<String, ArrayList<String>> urlMap){
-        controller.loadUrlMap(urlMap);
+    public void repopulateViews(HashMap<String, ArrayList<String>> urlMap, ArrayList<String> logs){
+        controller.repopulate(urlMap, logs);
     }
 
 }

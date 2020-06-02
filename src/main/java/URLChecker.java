@@ -8,12 +8,12 @@ public class URLChecker implements Runnable {
     private final String url;
     private final ArrayList<String> keywords;
     private ArrayList<Integer> hashes;
-    private final ThreadMonitor monitor;
+    private final Monitor monitor;
     private boolean hashingRequired;
     private String lastMatch;
     private boolean running;
 
-    public URLChecker(ThreadMonitor monitor, String url, ArrayList<String> keywords){
+    public URLChecker(Monitor monitor, String url, ArrayList<String> keywords){
         this.monitor = monitor;
         this.url = url;
         this.keywords = keywords;
@@ -78,10 +78,6 @@ public class URLChecker implements Runnable {
         return found;
     }
 
-//    synchronized public void addKeyword(String keywordIn){
-//        keywords.add(keywordIn);
-//        hashingRequired = true;
-//    }
 
     private void runHashing() throws IOException {
         search();
@@ -100,12 +96,6 @@ public class URLChecker implements Runnable {
         hashingRequired = true;
     }
 
-//    synchronized public void deleteKeyword(String keywordIn){
-//        keywords.remove(keywordIn);
-//    }
-
     public void stopRunning(){ running = false; }
-
-    public String getURL(){ return url; }
 
 }

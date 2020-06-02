@@ -1,6 +1,5 @@
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
@@ -19,10 +18,10 @@ public class GUIController {
     @FXML private ListView<String> keyView;
     @FXML private ListView<String> matchLogView;
     @FXML private MenuItem refreshMenu;
-    private ThreadMonitor monitor;
+    private Monitor monitor;
     private final URLFormatter formatter = new URLFormatter();
     private HashMap<String, ArrayList<String>> urlMap;
-    private ArrayList<String> matchLog;
+    private ArrayList<String> matchLogs = new ArrayList<>();
 
 
     @FXML
@@ -46,6 +45,7 @@ public class GUIController {
                 monitor.addUrl(url);
                 urlMap.put(url, new ArrayList<>());
                 urlField.clear();
+                monitor.save();
             }
             else{
                 monitor.error("Unable to connect to the URL");
@@ -84,27 +84,33 @@ public class GUIController {
                     monitor.addKeyword(selectedUrl);
                     updateKeyView();
                     keyField.clear();
+                    monitor.save();
                 }
             }
         }
     }
 
     @FXML
-    private void quit(){System.exit(0);}
+    private void quit(){
+        monitor.save();
+        System.exit(0);
+    }
 
     @FXML
     public MenuItem getRefreshMenuItem(){ return refreshMenu; }
 
-    public void addMatch(String url, String keyword){
+    public void addLogEntry(String url, String keyword){
         SimpleDateFormat sdt = new SimpleDateFormat("HH:mm:ss");
         Date now = new Date();
         String logEntry = url + ": " + keyword + " at " + sdt.format(now);
         matchLogView.getItems().add(logEntry);
-        matchLog.add(logEntry);
+        matchLogs.add(logEntry);
+        monitor.save();
     }
 
-    public void setMonitor(ThreadMonitor monitor){
+    public void setMonitor(Monitor monitor){
         this.monitor = monitor;
+        monitor.setLogs(matchLogs);
     }
 
     private void addChangeListener(){
@@ -116,9 +122,10 @@ public class GUIController {
         });
     }
 
-    public void loadUrlMap(HashMap<String, ArrayList<String>> urlMap){
+    public void repopulate(HashMap<String, ArrayList<String>> urlMap, ArrayList<String> matchLogs){
         this.urlMap = urlMap;
         urlView.getItems().setAll(urlMap.keySet());
+        matchLogView.getItems().setAll(matchLogs);
         updateKeyView();
     }
 
@@ -129,6 +136,7 @@ public class GUIController {
         urlMap.get(selectedUrl).remove(selectedKey);
         monitor.deleteKeyword(selectedUrl);
         updateKeyView();
+        monitor.save();
     }
 
     @FXML
@@ -137,18 +145,21 @@ public class GUIController {
         urlMap.remove(selectedUrl);
         urlView.getItems().setAll(urlMap.keySet());
         monitor.deleteUrl(selectedUrl);
+        monitor.save();
     }
 
     @FXML
     private void deleteLogEntry(){
         String selectedEntry = matchLogView.getSelectionModel().getSelectedItem();
-        matchLog.remove(selectedEntry);
-        matchLogView.getItems().setAll(matchLog);
+        matchLogs.remove(selectedEntry);
+        matchLogView.getItems().setAll(matchLogs);
+        monitor.save();
     }
 
     @FXML
     private void clearLog(){
-        matchLog.clear();
+        matchLogs.clear();
         matchLogView.getItems().clear();
+        monitor.save();
     }
 }
