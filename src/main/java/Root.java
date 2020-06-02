@@ -13,7 +13,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class GUI extends Application {
+public class Root extends Application {
 
     private Stage stage;
     private GUIController controller;
@@ -50,11 +50,6 @@ public class GUI extends Application {
         monitor.start();
     }
 
-    private synchronized void refresh(ActionEvent e){
-        System.out.println("refresh");
-        notifyAll();
-    }
-
     public void successNotification(String url, String keyword){
         controller.addMatch(url, keyword);
         Notifications.create()
@@ -78,7 +73,7 @@ public class GUI extends Application {
     }
 
     public void repopulateViews(HashMap<String, ArrayList<String>> urlMap){
-        controller.setUrlMap(urlMap);
+        controller.loadUrlMap(urlMap);
     }
 
 }

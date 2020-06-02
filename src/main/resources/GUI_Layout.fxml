@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
@@ -67,15 +68,30 @@
             <VBox BorderPane.alignment="CENTER">
                <children>
                   <TitledPane animated="false" collapsible="false" expanded="false" text="Links" textAlignment="CENTER" />
-                  <ListView fx:id="urlView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="urlView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                     <contextMenu>
+                        <ContextMenu>
+                          <items>
+                            <MenuItem fx:id="contextDeleteURL" mnemonicParsing="false" onAction="#deleteUrl" text="Delete item" />
+                          </items>
+                        </ContextMenu>
+                     </contextMenu></ListView>
                </children>
             </VBox>
          </left>
          <center>
             <VBox prefWidth="369.0" BorderPane.alignment="CENTER">
                <children>
-                  <TitledPane animated="false" collapsible="false" expanded="false" text="Matches" textAlignment="CENTER" />
-                  <ListView fx:id="matchesView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                  <TitledPane animated="false" collapsible="false" expanded="false" text="Match Log" textAlignment="CENTER" />
+                  <ListView fx:id="matchLogView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                     <contextMenu>
+                        <ContextMenu>
+                           <items>
+                              <MenuItem fx:id="contextDeleteURL1" mnemonicParsing="false" onAction="#deleteLogEntry" text="Delete item" />
+                              <MenuItem fx:id="contextDeleteURL11" mnemonicParsing="false" onAction="#clearLog" text="Clear all" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu></ListView>
                </children>
             </VBox>
          </center>
@@ -83,7 +99,14 @@
             <VBox BorderPane.alignment="CENTER">
                <children>
                   <TitledPane animated="false" collapsible="false" expanded="false" text="Keywords" textAlignment="CENTER" />
-                  <ListView fx:id="keyView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="keyView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                     <contextMenu>
+                        <ContextMenu>
+                           <items>
+                              <MenuItem fx:id="contextDeleteKeyword" mnemonicParsing="false" onAction="#deleteKeyword" text="Delete item" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu></ListView>
                </children>
             </VBox>
          </right>

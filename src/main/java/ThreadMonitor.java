@@ -9,22 +9,22 @@ import java.util.HashMap;
 public class ThreadMonitor implements Runnable{
 
     private HashMap<String, ArrayList<String>> urlMap;
-    private final ArrayList<Thread> checkerThreads;
     private ArrayList<Integer> hashes;
     private final HashMap<URLChecker, Thread> threadMap;
-    private final GUI gui;
+    private final HashMap<String, URLChecker> checkerMap;
+    private final Root root;
     private final FileManager fileManager;
 
-    public ThreadMonitor(GUI gui){
-        this.gui = gui;
+    public ThreadMonitor(Root root){
+        this.root = root;
         urlMap = new HashMap<>();
-        checkerThreads = new ArrayList<>();
         threadMap = new HashMap<>();
+        checkerMap = new HashMap<>();
         hashes = new ArrayList<>();
         Path path = Paths.get("src/main/resources/url_checker_data.txt"); //temporary
         fileManager = new FileManager(path, this);
         load();
-        gui.repopulateViews(urlMap);
+        root.repopulateViews(urlMap);
     }
 
     @Override
@@ -44,50 +44,34 @@ public class ThreadMonitor implements Runnable{
         ArrayList<String> keywords = urlMap.get(url);
         URLChecker checker = new URLChecker(this, url, keywords);
         Thread thread = new Thread(checker);
-        checkerThreads.add(thread);
         threadMap.put(checker, thread);
+        checkerMap.put(url, checker);
         System.out.println("Thread " + thread.toString() + " is created");
         thread.start();
     }
 
-    synchronized public void exclude(String str) {
+    synchronized public int exclude(String str) {
         int hash = str.hashCode();
         hashes.add(hash);
-
         System.out.println(hash);
+        return hash;
     }
 
     public boolean isExcluded(String str){
         return hashes.contains(str.hashCode());
     }
 
-    public void addKeyword(String url, String keyword){
-        for (URLChecker checker: threadMap.keySet()) {
-            if (checker.getURL().equals(url)){
-                checker.addKeyword(keyword);
-                threadMap.get(checker).interrupt();
-                break;
-            }
-        }
-        save();
-    }
-
-    public void addUrl(String url){
-        urlMap.put(url, new ArrayList<String>());
-        createThread(url);
-        save();
-    }
 
     synchronized public void matchFound(String url, String keyword){
-        Platform.runLater(() -> gui.successNotification(url, keyword));
+        Platform.runLater(() -> root.successNotification(url, keyword));
     }
 
     synchronized public void error(String message){
-        Platform.runLater(() -> gui.failNotification(message));
+        Platform.runLater(() -> root.failNotification(message));
     }
 
     public void refresh(){
-        for (Thread thread: checkerThreads) {
+        for (Thread thread: threadMap.values()) {
             thread.interrupt();
         }
     }
@@ -118,5 +102,35 @@ public class ThreadMonitor implements Runnable{
             error("Could not load the save data");
         }
 
+    }
+
+    public void addKeyword(String url){
+        URLChecker checker = checkerMap.get(url);
+        checker.requestHashing();
+        threadMap.get(checker).interrupt();
+        save();
+    }
+
+    public void addUrl(String url){
+        urlMap.put(url, new ArrayList<String>());
+        createThread(url);
+        save();
+    }
+
+    public void deleteKeyword(String url){
+        URLChecker checker = checkerMap.get(url);
+        hashes.removeAll(checker.getHashes());
+//        checker.deleteKeyword(keyword);
+        checker.clearHashes();
+        checker.requestHashing();
+        threadMap.get(checker).interrupt();
+        save();
+    }
+
+    public void deleteUrl(String url){
+        URLChecker checker = checkerMap.get(url);
+        hashes.removeAll(checker.getHashes());
+        checker.stopRunning();
+        save();
     }
 }

@@ -17,11 +17,12 @@ public class GUIController {
     @FXML private TextField keyField;
     @FXML private ListView<String> urlView;
     @FXML private ListView<String> keyView;
-    @FXML private ListView<String> matchesView;
+    @FXML private ListView<String> matchLogView;
     @FXML private MenuItem refreshMenu;
     private ThreadMonitor monitor;
     private final URLFormatter formatter = new URLFormatter();
-    private HashMap<String, ArrayList<String>> urlMap = new HashMap<>();
+    private HashMap<String, ArrayList<String>> urlMap;
+    private ArrayList<String> matchLog;
 
 
     @FXML
@@ -43,7 +44,7 @@ public class GUIController {
             if(estConnection){
                 urlView.getItems().add(url);
                 monitor.addUrl(url);
-                urlMap.put(url, new ArrayList<String>());
+                urlMap.put(url, new ArrayList<>());
                 urlField.clear();
             }
             else{
@@ -80,7 +81,7 @@ public class GUIController {
                 String selectedUrl = urlView.getSelectionModel().getSelectedItem();
                 if(!urlMap.get(selectedUrl).contains(key.toLowerCase())){
                     urlMap.get(selectedUrl).add(key.toLowerCase());
-                    monitor.addKeyword(selectedUrl, key.toLowerCase());
+                    monitor.addKeyword(selectedUrl);
                     updateKeyView();
                     keyField.clear();
                 }
@@ -97,7 +98,9 @@ public class GUIController {
     public void addMatch(String url, String keyword){
         SimpleDateFormat sdt = new SimpleDateFormat("HH:mm:ss");
         Date now = new Date();
-        matchesView.getItems().add(url + ": " + keyword + " at " + sdt.format(now));
+        String logEntry = url + ": " + keyword + " at " + sdt.format(now);
+        matchLogView.getItems().add(logEntry);
+        matchLog.add(logEntry);
     }
 
     public void setMonitor(ThreadMonitor monitor){
@@ -113,9 +116,39 @@ public class GUIController {
         });
     }
 
-    public void setUrlMap(HashMap<String, ArrayList<String>> urlMap){
+    public void loadUrlMap(HashMap<String, ArrayList<String>> urlMap){
         this.urlMap = urlMap;
         urlView.getItems().setAll(urlMap.keySet());
         updateKeyView();
+    }
+
+    @FXML
+    private void deleteKeyword(){
+        String selectedUrl = urlView.getSelectionModel().getSelectedItem();
+        String selectedKey = keyView.getSelectionModel().getSelectedItem();
+        urlMap.get(selectedUrl).remove(selectedKey);
+        monitor.deleteKeyword(selectedUrl);
+        updateKeyView();
+    }
+
+    @FXML
+    private void deleteUrl(){
+        String selectedUrl = urlView.getSelectionModel().getSelectedItem();
+        urlMap.remove(selectedUrl);
+        urlView.getItems().setAll(urlMap.keySet());
+        monitor.deleteUrl(selectedUrl);
+    }
+
+    @FXML
+    private void deleteLogEntry(){
+        String selectedEntry = matchLogView.getSelectionModel().getSelectedItem();
+        matchLog.remove(selectedEntry);
+        matchLogView.getItems().setAll(matchLog);
+    }
+
+    @FXML
+    private void clearLog(){
+        matchLog.clear();
+        matchLogView.getItems().clear();
     }
 }

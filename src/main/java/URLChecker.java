@@ -5,28 +5,29 @@ import java.util.ArrayList;
 
 public class URLChecker implements Runnable {
 
-    private String url;
-    private ArrayList<String> keywords;
+    private final String url;
+    private final ArrayList<String> keywords;
+    private ArrayList<Integer> hashes;
     private final ThreadMonitor monitor;
     private boolean hashingRequired;
     private String lastMatch;
+    private boolean running;
 
     public URLChecker(ThreadMonitor monitor, String url, ArrayList<String> keywords){
         this.monitor = monitor;
         this.url = url;
         this.keywords = keywords;
         hashingRequired = true;
+        running = true;
+        hashes = new ArrayList<Integer>();
     }
 
     @Override
     public void run() {
-        while(true){
+        while(running){
             try{
                 if (hashingRequired){
-                    search();
-                    System.out.println("Hashing complete");
-                    hashingRequired = false;
-                    monitor.save();
+                    runHashing();
                 }
                 boolean found = search();
                 if(found){monitor.matchFound(url, lastMatch);}
@@ -65,7 +66,8 @@ public class URLChecker implements Runnable {
 
                         if (!monitor.isExcluded(hashStr)) {
                             System.out.println(url + " " + word + " " + matchInd);
-                            monitor.exclude(hashStr);
+                            int hashedValue = monitor.exclude(hashStr);
+                            hashes.add(hashedValue);
                             lastMatch = word;
                             found = true;
                         }
@@ -76,10 +78,33 @@ public class URLChecker implements Runnable {
         return found;
     }
 
-    synchronized public void addKeyword(String keywordIn){
-        keywords.add(keywordIn);
+//    synchronized public void addKeyword(String keywordIn){
+//        keywords.add(keywordIn);
+//        hashingRequired = true;
+//    }
+
+    private void runHashing() throws IOException {
+        search();
+        System.out.println("Hashing complete");
+        hashingRequired = false;
+        monitor.save();
+    }
+
+    public ArrayList<Integer> getHashes(){ return hashes; }
+
+    public void clearHashes(){
+        hashes.clear();
+    }
+
+    public void requestHashing(){
         hashingRequired = true;
     }
+
+//    synchronized public void deleteKeyword(String keywordIn){
+//        keywords.remove(keywordIn);
+//    }
+
+    public void stopRunning(){ running = false; }
 
     public String getURL(){ return url; }
 
