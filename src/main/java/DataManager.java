@@ -10,10 +10,10 @@ public class DataManager {
     private ArrayList<Integer> hashList;
     private ArrayList<String> logList;
     private final SaveManager saveManager;
-    private Root root;
+    private Main main;
 
-    public DataManager(Root root){
-        this.root = root;
+    public DataManager(Main main){
+        this.main = main;
         saveManager = new SaveManager(this);
     }
 
@@ -98,12 +98,12 @@ public class DataManager {
     }
 
     synchronized public void matchFound(String url, String keyword){
-        Platform.runLater(() -> root.successNotification(url, keyword));
+        Platform.runLater(() -> main.successNotification(url, keyword));
         save();
     }
 
     synchronized public void error(String message){
-        Platform.runLater(() -> root.failNotification(message));
+        Platform.runLater(() -> main.failNotification(message));
     }
 
 }

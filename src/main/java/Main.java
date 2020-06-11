@@ -9,7 +9,7 @@ import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 import java.io.IOException;
 
-public class Root extends Application {
+public class Main extends Application {
 
     private Stage stage;
     private GUIController controller;
