@@ -9,12 +9,18 @@ import java.util.*;
 
 public class SaveManager {
 
-    private final Path pathToSave = Paths.get("src/main/resources/url_checker_data.txt");
+    private final Path pathToSave;
     private final DataManager dataManager;
 
 
-    public SaveManager(DataManager dataManager){
+    public SaveManager(DataManager dataManager) throws IOException {
+        pathToSave = Paths.get("src/main/resources/url_checker_data.txt");
+//        pathToSave = Paths.get(System.getProperty("user.dir") + "\\url_spy_data.txt");
         this.dataManager = dataManager;
+
+        if(!Files.exists(pathToSave)){
+            Files.createFile(pathToSave);
+        }
     }
 
     public void save() throws IOException {
@@ -34,7 +40,7 @@ public class SaveManager {
         StringBuilder builder = new StringBuilder();
         SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         Date now = new Date();
-        builder.append("---URL_Update_Checker Save File " + sdt.format(now) + "---" + "\n");
+        builder.append("---URL Spy Save File " + sdt.format(now) + "---" + "\n");
 //        builder.append("<Hashed values>" + "\n");
 //        for (Integer hash: hashes) {
 //            builder.append("#" + hash + "\n");

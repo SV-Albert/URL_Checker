@@ -11,12 +11,16 @@ public class DataManager {
     private HashMap<String, ArrayList<String>> urlKeyMap;
     private ArrayList<Integer> hashList;
     private ArrayList<String> logList;
-    private final SaveManager saveManager;
+    private SaveManager saveManager;
     private Main main;
 
     public DataManager(Main main){
         this.main = main;
-        saveManager = new SaveManager(this);
+        try {
+            saveManager = new SaveManager(this);
+        } catch (IOException e) {
+            error("Could not create a save file");
+        }
     }
 
     synchronized public void load(){

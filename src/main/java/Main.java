@@ -61,7 +61,7 @@ public class Main extends Application {
                 .title("Match found!")
                 .text("Match found at " + url + " on the \"" + keyword + "\" keyword ")
                 .onAction(e -> dataManager.openInBrowser(url))
-                .hideAfter(Duration.seconds(5))
+                .hideAfter(Duration.seconds(15))
                 .show();
     }
 
@@ -71,7 +71,7 @@ public class Main extends Application {
                 .position(Pos.BOTTOM_RIGHT)
                 .title("Something went wrong")
                 .text(message)
-                .hideAfter(Duration.INDEFINITE)
+                .hideAfter(Duration.seconds(10))
                 .show();
     }
 
