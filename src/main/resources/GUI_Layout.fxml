@@ -14,10 +14,8 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUIController">
+<VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@guiStyle.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUIController">
   <children>
     <MenuBar id="menuBar" VBox.vgrow="NEVER">
       <menus>
@@ -38,10 +36,10 @@
          <top>
             <HBox id="actionBox" alignment="CENTER" prefHeight="35.0" prefWidth="900.0" BorderPane.alignment="CENTER">
                <children>
-                  <TextField id="linksField" fx:id="urlField" alignment="CENTER" prefHeight="25.0" prefWidth="240.0" promptText="Add links" />
+                  <TextField id="linksField" fx:id="urlField" alignment="CENTER" prefHeight="25.0" prefWidth="240.0" promptText="Add links" styleClass="views-section" />
                   <Button id="linksSubmit" fx:id="urlSubmit" mnemonicParsing="false" onAction="#urlSubmit" text="Submit" />
                   <Pane prefHeight="35.0" prefWidth="76.0" />
-                  <TextField id="keyField" fx:id="keyField" alignment="CENTER" prefHeight="25.0" prefWidth="240.0" promptText="Add keywords" />
+                  <TextField id="keyField" fx:id="keyField" alignment="CENTER" prefHeight="25.0" prefWidth="240.0" promptText="Add keywords" styleClass="views-section" />
                   <Button id="keysSubmit" fx:id="keySubmit" alignment="CENTER_RIGHT" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#keySubmit" text="Submit" />
                </children>
             </HBox>
@@ -49,14 +47,7 @@
          <bottom>
           <HBox id="HBox" alignment="BOTTOM_CENTER" fillHeight="false" maxHeight="16.0" minHeight="16.0" prefHeight="16.0" prefWidth="900.0" spacing="5.0" BorderPane.alignment="BOTTOM_CENTER">
             <children>
-              <Label id="statusPane" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
-                <font>
-                  <Font size="11.0" fx:id="x3" />
-                </font>
-                <textFill>
-                  <Color blue="0.625" green="0.625" red="0.625" fx:id="x4" />
-                </textFill>
-              </Label>
+                  <Label fx:id="versionLabel" styleClass="version-section" />
               <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
             </children>
             <padding>
@@ -68,7 +59,7 @@
             <VBox BorderPane.alignment="CENTER">
                <children>
                   <TitledPane animated="false" collapsible="false" expanded="false" text="Links" textAlignment="CENTER" />
-                  <ListView fx:id="urlView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                  <ListView fx:id="urlView" maxHeight="1.7976931348623157E308" styleClass="views-section" VBox.vgrow="ALWAYS">
                      <contextMenu>
                         <ContextMenu>
                           <items>
@@ -83,7 +74,7 @@
             <VBox prefWidth="369.0" BorderPane.alignment="CENTER">
                <children>
                   <TitledPane animated="false" collapsible="false" expanded="false" text="Match Log" textAlignment="CENTER" />
-                  <ListView fx:id="matchLogView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                  <ListView fx:id="logView" maxHeight="1.7976931348623157E308" styleClass="views-section" stylesheets="@guiStyle.css" VBox.vgrow="ALWAYS">
                      <contextMenu>
                         <ContextMenu>
                            <items>
@@ -99,7 +90,7 @@
             <VBox BorderPane.alignment="CENTER">
                <children>
                   <TitledPane animated="false" collapsible="false" expanded="false" text="Keywords" textAlignment="CENTER" />
-                  <ListView fx:id="keyView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                  <ListView fx:id="keyView" maxHeight="1.7976931348623157E308" styleClass="views-section" VBox.vgrow="ALWAYS">
                      <contextMenu>
                         <ContextMenu>
                            <items>
