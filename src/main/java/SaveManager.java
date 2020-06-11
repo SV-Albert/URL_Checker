@@ -14,8 +14,8 @@ public class SaveManager {
 
 
     public SaveManager(DataManager dataManager) throws IOException {
-        pathToSave = Paths.get("src/main/resources/url_checker_data.txt");
-//        pathToSave = Paths.get(System.getProperty("user.dir") + "\\url_spy_data.txt");
+//        pathToSave = Paths.get("src/main/resources/url_checker_data.txt");
+        pathToSave = Paths.get(System.getProperty("user.dir") + "\\url_spy_data.txt");
         this.dataManager = dataManager;
 
         if(!Files.exists(pathToSave)){
