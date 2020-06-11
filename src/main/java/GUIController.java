@@ -151,9 +151,9 @@ public class GUIController {
     public MenuItem getRefreshMenuItem(){ return refreshMenu; }
 
     public void addLogEntry(String url, String keyword){
-        SimpleDateFormat sdt = new SimpleDateFormat("HH:mm:ss dd.MM");
+        SimpleDateFormat sdt = new SimpleDateFormat("HH:mm:ss/dd.MM");
         Date now = new Date();
-        String logEntry = url + " on \"" + keyword + " at \"" + sdt.format(now);
+        String logEntry = url + " on \"" + keyword + "\" at " + sdt.format(now);
         logView.getItems().add(logEntry);
         dataManager.addLogEntry(logEntry);
     }
