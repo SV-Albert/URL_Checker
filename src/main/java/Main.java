@@ -14,6 +14,7 @@ public class Main extends Application {
     private Stage stage;
     private GUIController controller;
     private DataManager dataManager;
+    private String version = "URL Spy v0.1";
 
 
     public static void main(String[] args) {
@@ -39,10 +40,11 @@ public class Main extends Application {
         controller.setThreadMonitor(threadMonitor);
         controller.setDataManager(dataManager);
         controller.getRefreshMenuItem().setOnAction(e -> threadMonitor.refresh());
+        controller.setVersion(version);
 
 
         Scene scene = new Scene(root, 900, 450);
-        stage.setTitle("URL Checker");
+        stage.setTitle(version);
         stage.setScene(scene);
         stage.show();
 
@@ -58,7 +60,7 @@ public class Main extends Application {
                 .position(Pos.BOTTOM_RIGHT)
                 .title("Match found!")
                 .text("Match found at " + url + " on the \"" + keyword + "\" keyword ")
-                .onAction(e -> getHostServices().showDocument(url))
+                .onAction(e -> dataManager.openInBrowser(url))
                 .hideAfter(Duration.seconds(5))
                 .show();
     }

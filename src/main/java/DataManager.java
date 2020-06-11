@@ -1,6 +1,8 @@
 import javafx.application.Platform;
 
+import java.awt.*;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -106,4 +108,21 @@ public class DataManager {
         Platform.runLater(() -> main.failNotification(message));
     }
 
+    public void openInBrowser(String url) {
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(new URI(url));
+            } catch (Exception e) {
+                error("Failed to open the link");
+            }
+        } else {
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                runtime.exec("xdg-open " + url);
+            } catch (IOException e) {
+                error("Failed to open the link");
+            }
+        }
+    }
 }
