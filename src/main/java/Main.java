@@ -5,12 +5,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
+
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public class Main extends Application {
 
@@ -51,6 +54,7 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("URL_Spy_Logo.png")));
         Thread monitor = new Thread(threadMonitor);
         monitor.start();
         controller.repopulate();
