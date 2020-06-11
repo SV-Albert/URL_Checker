@@ -3,18 +3,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Root extends Application {
 
     private Stage stage;
     private GUIController controller;
+    private DataManager dataManager;
 
 
     public static void main(String[] args) {
@@ -26,17 +25,20 @@ public class Root extends Application {
         this.stage = stage;
         FXMLLoader controllerLoader =  new FXMLLoader(getClass().getResource("GUI_Layout.fxml"));
 
-        Parent root = new BorderPane();
+        Parent root = new VBox();
         try {
             root = controllerLoader.load();
         } catch (IOException e) {
             failNotification("Application start failed");
         }
 
+        dataManager = new DataManager(this);
+        dataManager.load();
         controller = controllerLoader.getController();
-        Monitor monitorObject = new Monitor(this);
-        controller.setMonitor(monitorObject);
-        controller.getRefreshMenuItem().setOnAction(e -> monitorObject.refresh());
+        ThreadMonitor threadMonitor = new ThreadMonitor(dataManager);
+        controller.setThreadMonitor(threadMonitor);
+        controller.setDataManager(dataManager);
+        controller.getRefreshMenuItem().setOnAction(e -> threadMonitor.refresh());
 
 
         Scene scene = new Scene(root, 900, 450);
@@ -44,8 +46,9 @@ public class Root extends Application {
         stage.setScene(scene);
         stage.show();
 
-        Thread monitor = new Thread(monitorObject);
+        Thread monitor = new Thread(threadMonitor);
         monitor.start();
+        controller.repopulate();
     }
 
     public void successNotification(String url, String keyword){
@@ -54,7 +57,7 @@ public class Root extends Application {
                 .darkStyle()
                 .position(Pos.BOTTOM_RIGHT)
                 .title("Match found!")
-                .text("Match found at " + url + " on word " + keyword)
+                .text("Match found at " + url + " on the \"" + keyword + "\" keyword ")
                 .onAction(e -> getHostServices().showDocument(url))
                 .hideAfter(Duration.seconds(5))
                 .show();
@@ -68,10 +71,6 @@ public class Root extends Application {
                 .text(message)
                 .hideAfter(Duration.INDEFINITE)
                 .show();
-    }
-
-    public void repopulateViews(HashMap<String, ArrayList<String>> urlMap, ArrayList<String> logs){
-        controller.repopulate(urlMap, logs);
     }
 
 }

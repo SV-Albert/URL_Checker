@@ -3,37 +3,38 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class URLChecker implements Runnable {
+public class CheckerThread implements Runnable {
 
     private final String url;
     private final ArrayList<String> keywords;
-    private ArrayList<Integer> hashes;
-    private final Monitor monitor;
+//    private ArrayList<Integer> hashes;
+    private final ThreadMonitor threadMonitor;
     private boolean hashingRequired;
     private String lastMatch;
     private boolean running;
 
-    public URLChecker(Monitor monitor, String url, ArrayList<String> keywords){
-        this.monitor = monitor;
+    public CheckerThread(ThreadMonitor threadMonitor, String url, ArrayList<String> keywords){
+        this.threadMonitor = threadMonitor;
         this.url = url;
         this.keywords = keywords;
         hashingRequired = true;
-        running = true;
-        hashes = new ArrayList<Integer>();
+//        hashes = new ArrayList<Integer>();
     }
 
     @Override
     public void run() {
+        running = true;
         while(running){
             try{
                 if (hashingRequired){
                     runHashing();
                 }
                 boolean found = search();
-                if(found){monitor.matchFound(url, lastMatch);}
+                if(found){
+                    threadMonitor.matchFound(url, lastMatch);}
             }
             catch (IOException e){
-                monitor.error("Could not access " + url);
+                threadMonitor.error("Could not access " + url);
             }
 
             try{
@@ -63,11 +64,9 @@ public class URLChecker implements Runnable {
                             hashStr = body.substring(matchInd, body.length() - 1);
                         }
                         pageIndex = matchInd + word.length(); //set the index to the last char of the matched word
-
-                        if (!monitor.isExcluded(hashStr)) {
+                        boolean isExcluded = threadMonitor.addHashIfNotExcluded(hashStr);
+                        if (!isExcluded) {
                             System.out.println(url + " " + word + " " + matchInd);
-                            int hashedValue = monitor.exclude(hashStr);
-                            hashes.add(hashedValue);
                             lastMatch = word;
                             found = true;
                         }
@@ -83,14 +82,14 @@ public class URLChecker implements Runnable {
         search();
         System.out.println("Hashing complete");
         hashingRequired = false;
-        monitor.save();
+//        threadMonitor.save();
     }
-
-    public ArrayList<Integer> getHashes(){ return hashes; }
-
-    public void clearHashes(){
-        hashes.clear();
-    }
+//
+//    public ArrayList<Integer> getHashes(){ return hashes; }
+//
+//    public void clearHashes(){
+//        hashes.clear();
+//    }
 
     public void requestHashing(){
         hashingRequired = true;

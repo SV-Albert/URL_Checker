@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
 public class GUIController {
 
@@ -18,15 +17,28 @@ public class GUIController {
     @FXML private ListView<String> keyView;
     @FXML private ListView<String> matchLogView;
     @FXML private MenuItem refreshMenu;
-    private Monitor monitor;
-    private final URLFormatter formatter = new URLFormatter();
-    private HashMap<String, ArrayList<String>> urlMap;
-    private ArrayList<String> matchLogs = new ArrayList<>();
+    private ThreadMonitor threadMonitor;
+    private DataManager dataManager;
+    private URLFormatter formatter;
+//    private HashMap<String, ArrayList<String>> urlMap;
+//    private ArrayList<String> matchLogs = new ArrayList<>();
 
 
     @FXML
     public void initialize(){
         addChangeListener();
+        formatter = new URLFormatter();
+
+    }
+
+
+    public void setThreadMonitor(ThreadMonitor threadMonitor){
+        this.threadMonitor = threadMonitor;
+//        threadMonitor.setLogs(matchLogs);
+    }
+
+    public void setDataManager(DataManager dataManager){
+        this.dataManager = dataManager;
     }
 
     @FXML
@@ -38,21 +50,20 @@ public class GUIController {
                 estConnection = formatter.pingURL(url);
             }
             catch (IOException e){
-                monitor.error("Unable to connect to the URL");
+                dataManager.error("Unable to connect to the URL");
             }
             if(estConnection){
                 urlView.getItems().add(url);
-                monitor.addUrl(url);
-                urlMap.put(url, new ArrayList<>());
+                dataManager.addUrl(url);
+                threadMonitor.createThread(url);
                 urlField.clear();
-                monitor.save();
             }
             else{
-                monitor.error("Unable to connect to the URL");
+                dataManager.error("Unable to connect to the URL");
             }
         }
         else {
-            monitor.error("Invalid URL");
+            dataManager.error("Invalid URL");
         }
     }
 
@@ -63,28 +74,27 @@ public class GUIController {
         }
         else{
             String selectedUrl = urlView.getSelectionModel().getSelectedItem();
-            keyView.getItems().setAll(urlMap.get(selectedUrl));
+            keyView.getItems().setAll(dataManager.getKeywords(selectedUrl));
         }
     }
 
     @FXML
     private void keySubmit() {
         if(urlView.getItems().isEmpty()){
-            monitor.error("Please add a URL first");
+            dataManager.error("Please add a URL first");
         }
         else if(urlView.getSelectionModel().getSelectedItems().isEmpty()){
-            monitor.error("Please select a URL");
+            dataManager.error("Please select a URL");
         }
         else{
             String key = keyField.getText();
             if (key != null) {
                 String selectedUrl = urlView.getSelectionModel().getSelectedItem();
-                if(!urlMap.get(selectedUrl).contains(key.toLowerCase())){
-                    urlMap.get(selectedUrl).add(key.toLowerCase());
-                    monitor.addKeyword(selectedUrl);
+                if(!dataManager.getKeywords(selectedUrl).contains(key.toLowerCase())){
+                    dataManager.addKeyword(selectedUrl, key.toLowerCase());
+                    threadMonitor.addKeyword(selectedUrl);
                     updateKeyView();
                     keyField.clear();
-                    monitor.save();
                 }
             }
         }
@@ -92,7 +102,6 @@ public class GUIController {
 
     @FXML
     private void quit(){
-        monitor.save();
         System.exit(0);
     }
 
@@ -104,13 +113,7 @@ public class GUIController {
         Date now = new Date();
         String logEntry = url + ": " + keyword + " at " + sdt.format(now);
         matchLogView.getItems().add(logEntry);
-        matchLogs.add(logEntry);
-        monitor.save();
-    }
-
-    public void setMonitor(Monitor monitor){
-        this.monitor = monitor;
-        monitor.setLogs(matchLogs);
+        dataManager.addLogEntry(logEntry);
     }
 
     private void addChangeListener(){
@@ -122,10 +125,9 @@ public class GUIController {
         });
     }
 
-    public void repopulate(HashMap<String, ArrayList<String>> urlMap, ArrayList<String> matchLogs){
-        this.urlMap = urlMap;
-        urlView.getItems().setAll(urlMap.keySet());
-        matchLogView.getItems().setAll(matchLogs);
+    public void repopulate(){
+        urlView.getItems().setAll(dataManager.getUrlKeyMap().keySet());
+        matchLogView.getItems().setAll(dataManager.getLogs());
         updateKeyView();
     }
 
@@ -133,33 +135,29 @@ public class GUIController {
     private void deleteKeyword(){
         String selectedUrl = urlView.getSelectionModel().getSelectedItem();
         String selectedKey = keyView.getSelectionModel().getSelectedItem();
-        urlMap.get(selectedUrl).remove(selectedKey);
-        monitor.deleteKeyword(selectedUrl);
+        dataManager.deleteKeyword(selectedUrl, selectedKey);
+        threadMonitor.deleteKeyword(selectedUrl);
         updateKeyView();
-        monitor.save();
     }
 
     @FXML
     private void deleteUrl(){
         String selectedUrl = urlView.getSelectionModel().getSelectedItem();
-        urlMap.remove(selectedUrl);
-        urlView.getItems().setAll(urlMap.keySet());
-        monitor.deleteUrl(selectedUrl);
-        monitor.save();
+        dataManager.deleteUrl(selectedUrl);
+        urlView.getItems().setAll(dataManager.getUrlKeyMap().keySet());
+        threadMonitor.deleteThread(selectedUrl);
     }
 
     @FXML
     private void deleteLogEntry(){
         String selectedEntry = matchLogView.getSelectionModel().getSelectedItem();
-        matchLogs.remove(selectedEntry);
-        matchLogView.getItems().setAll(matchLogs);
-        monitor.save();
+        dataManager.removeLogEntry(selectedEntry);
+        matchLogView.getItems().setAll(dataManager.getLogs());
     }
 
     @FXML
     private void clearLog(){
-        matchLogs.clear();
+        dataManager.clearLogs();
         matchLogView.getItems().clear();
-        monitor.save();
     }
 }

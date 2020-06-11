@@ -3,18 +3,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class FileManager {
+public class SaveManager {
 
-    private Path pathToSave;
-    private Monitor monitor;
+    private final Path pathToSave = Paths.get("src/main/resources/url_checker_data.txt");
+    private final DataManager dataManager;
 
 
-    public FileManager(Path path, Monitor monitor){
-        pathToSave = path;
-        this.monitor = monitor;
+    public SaveManager(DataManager dataManager){
+        this.dataManager = dataManager;
     }
 
     public void save() throws IOException {
@@ -28,18 +28,18 @@ public class FileManager {
     }
 
     public String getSaveData(){
-        HashMap<String, ArrayList<String>> urlMap = monitor.getUrlMap();
-        List<Integer> hashes = monitor.getHashes();
+        HashMap<String, ArrayList<String>> urlMap = dataManager.getUrlKeyMap();
+//        List<Integer> hashes = monitor.getHashes();
 
         StringBuilder builder = new StringBuilder();
         SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         Date now = new Date();
         builder.append("---URL_Update_Checker Save File " + sdt.format(now) + "---" + "\n");
-        builder.append("<Hashed values>" + "\n");
-        for (Integer hash: hashes) {
-            builder.append("#" + hash + "\n");
-        }
-        builder.append("</Hashed values>" + "\n");
+//        builder.append("<Hashed values>" + "\n");
+//        for (Integer hash: hashes) {
+//            builder.append("#" + hash + "\n");
+//        }
+//        builder.append("</Hashed values>" + "\n");
         builder.append("<URLs + keywords>" + "\n");
         for (String url: urlMap.keySet()) {
             builder.append(url + "|");
@@ -53,7 +53,7 @@ public class FileManager {
         }
         builder.append("</URLs + keywords>" + "\n");
         builder.append("<Logs>" + "\n");
-        for (String logEntry: monitor.getLogs()) {
+        for (String logEntry: dataManager.getLogs()) {
             builder.append("~" + logEntry + "\n");
         }
         builder.append("</Logs>" + "\n");
@@ -61,15 +61,16 @@ public class FileManager {
         return builder.toString();
     }
 
-    public ArrayList<Integer> loadHashes() throws IOException {
-        List<String> lines = Files.readAllLines(pathToSave);
-        lines.removeIf(line -> !line.startsWith("#"));
-        ArrayList<Integer> hashes = new ArrayList<>();
-        for (String line: lines) {
-            hashes.add(Integer.valueOf(line.replaceAll("#", "")));
-        }
-        return hashes;
-    }
+//    public ArrayList<Integer> loadHashes() throws IOException {
+//        List<String> lines = Files.readAllLines(pathToSave);
+//        lines.removeIf(line -> !line.startsWith("#"));
+//        ArrayList<Integer> hashes = new ArrayList<>();
+//        for (String line: lines) {
+//            hashes.add(Integer.valueOf(line.replaceAll("#", "")));
+//        }
+//        return hashes;
+//    }
+
     public HashMap<String, ArrayList<String>> loadKeyMap() throws IOException{
         List<String> lines = Files.readAllLines(pathToSave);
         lines.removeIf(line -> !line.contains("|"));
