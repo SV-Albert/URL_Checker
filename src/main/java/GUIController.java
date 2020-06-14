@@ -13,6 +13,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * FXML controller class for the application's GUI
+ *
+ * @version 0.1
+ * @author Albert Shakirzianov
+ */
+
 public class GUIController {
 
     @FXML private TextField urlField;
@@ -26,6 +33,9 @@ public class GUIController {
     private DataManager dataManager;
     private URLFormatter formatter;
 
+    /**
+     * Initialization method for the controller
+     */
     @FXML
     public void initialize(){
         addChangeListener();
@@ -33,14 +43,28 @@ public class GUIController {
         formatter = new URLFormatter();
     }
 
+    /**
+     * Set the ThreadMonitor object field
+     *
+     * @param threadMonitor
+     */
     public void setThreadMonitor(ThreadMonitor threadMonitor){
         this.threadMonitor = threadMonitor;
     }
 
+    /**
+     * Set the DataManager object field
+     *
+     * @param dataManager
+     */
     public void setDataManager(DataManager dataManager){
         this.dataManager = dataManager;
     }
 
+    /**
+     * Add a change listener to the urlView in order to update the keyView
+     * when a new URL is selected
+     */
     private void addChangeListener(){
         urlView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -50,6 +74,10 @@ public class GUIController {
         });
     }
 
+    /**
+     * Add a double click event to the logView and urlView that opens a corresponding
+     * URl in a default browser
+     */
     private void setUrlOpenEvent(){
         logView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -73,16 +101,28 @@ public class GUIController {
         });
     }
 
+    /**
+     * Repopulate the views with data from the DataManager
+     */
     public void repopulate(){
         urlView.getItems().setAll(dataManager.getUrlKeyMap().keySet());
         logView.getItems().setAll(dataManager.getLogs());
         updateKeyView();
     }
 
+    /**
+     * Set text for the versionLabel
+     *
+     * @param version text to set
+     */
     public void setVersion(String version){
         versionLabel.setText(version);
     }
 
+    /**
+     * Method invoked by the URL Submit button that checks the validity of the input
+     * and adds the formatted URl to the urlView
+     */
     @FXML
     private void urlSubmit(){
         String url = formatter.formatURL(urlField.getText());
@@ -109,6 +149,9 @@ public class GUIController {
         }
     }
 
+    /**
+     * Update the data displayed in the keyView
+     */
     @FXML
     private void updateKeyView(){
         if (urlView.getSelectionModel().isEmpty()){
@@ -120,6 +163,9 @@ public class GUIController {
         }
     }
 
+    /**
+     * Method invoked my the keyword Submit button
+     */
     @FXML
     private void keySubmit() {
         if(urlView.getItems().isEmpty()){
@@ -134,7 +180,7 @@ public class GUIController {
                 String selectedUrl = urlView.getSelectionModel().getSelectedItem();
                 if(!dataManager.getKeywords(selectedUrl).contains(key.toLowerCase())){
                     dataManager.addKeyword(selectedUrl, key.toLowerCase());
-                    threadMonitor.addKeyword(selectedUrl);
+                    threadMonitor.requestHashing(selectedUrl);
                     updateKeyView();
                     keyField.clear();
                 }
@@ -142,11 +188,17 @@ public class GUIController {
         }
     }
 
+    /**
+     * Stop the application
+     */
     @FXML
     private void quit(){
         System.exit(0);
     }
 
+    /**
+     * @return refreshMenu MenuItem
+     */
     @FXML
     public MenuItem getRefreshMenuItem(){ return refreshMenu; }
 
@@ -158,23 +210,35 @@ public class GUIController {
         dataManager.addLogEntry(logEntry);
     }
 
+    /**
+     * Method invoked by the Delete Item contextual menu that removes a selected
+     * keyword
+     */
     @FXML
     private void deleteKeyword(){
         String selectedUrl = urlView.getSelectionModel().getSelectedItem();
         String selectedKey = keyView.getSelectionModel().getSelectedItem();
         dataManager.deleteKeyword(selectedUrl, selectedKey);
-        threadMonitor.deleteKeyword(selectedUrl);
+        threadMonitor.requestHashing(selectedUrl);
         updateKeyView();
     }
 
+    /**
+     * Method invoked by the Delete Item contextual menu that removes a selected
+     * URL
+     */
     @FXML
     private void deleteUrl(){
         String selectedUrl = urlView.getSelectionModel().getSelectedItem();
         dataManager.deleteUrl(selectedUrl);
         urlView.getItems().setAll(dataManager.getUrlKeyMap().keySet());
-        threadMonitor.deleteThread(selectedUrl);
+        threadMonitor.stopThread(selectedUrl);
     }
 
+    /**
+     * Method invoked by the Delete Item contextual menu that removes a selected
+     * log entry
+     */
     @FXML
     private void deleteLogEntry(){
         String selectedEntry = logView.getSelectionModel().getSelectedItem();
@@ -182,6 +246,10 @@ public class GUIController {
         logView.getItems().setAll(dataManager.getLogs());
     }
 
+    /**
+     * Method invoked by the Clear All contextual menu that removes all log
+     * entries
+     */
     @FXML
     private void clearLog(){
         dataManager.clearLogs();

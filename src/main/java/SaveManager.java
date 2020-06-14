@@ -7,15 +7,26 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * A class responsible for generating save data, writing it to a file and retrieving
+ * data from a file
+ *
+ * @version 0.1
+ * @author Albert Shakirzianov
+ */
 public class SaveManager {
 
     private final Path pathToSave;
     private final DataManager dataManager;
 
-
+    /**
+     * Constructor for the SaveManager class
+     *
+     * @param dataManager
+     * @throws IOException
+     */
     public SaveManager(DataManager dataManager) throws IOException {
-//        pathToSave = Paths.get("src/main/resources/url_checker_data.txt");
-        pathToSave = Paths.get(System.getProperty("user.dir") + "\\url_spy_data.txt");
+        pathToSave = Paths.get(System.getProperty("user.dir") + "\\.url_spy_data.txt");
         this.dataManager = dataManager;
 
         if(!Files.exists(pathToSave)){
@@ -23,6 +34,11 @@ public class SaveManager {
         }
     }
 
+    /**
+     * Write the save data to a file
+     *
+     * @throws IOException
+     */
     public void save() throws IOException {
         if(!Files.exists(pathToSave)){
             Files.createFile(pathToSave);
@@ -33,6 +49,11 @@ public class SaveManager {
         writer.close();
     }
 
+    /**
+     * Generate a String with save data
+     *
+     * @return save data
+     */
     public String getSaveData(){
         HashMap<String, ArrayList<String>> urlMap = dataManager.getUrlKeyMap();
 //        List<Integer> hashes = monitor.getHashes();
@@ -41,11 +62,6 @@ public class SaveManager {
         SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         Date now = new Date();
         builder.append("---URL Spy Save File " + sdt.format(now) + "---" + "\n");
-//        builder.append("<Hashed values>" + "\n");
-//        for (Integer hash: hashes) {
-//            builder.append("#" + hash + "\n");
-//        }
-//        builder.append("</Hashed values>" + "\n");
         builder.append("<URLs + keywords>" + "\n");
         for (String url: urlMap.keySet()) {
             builder.append(url + "|");
@@ -67,16 +83,12 @@ public class SaveManager {
         return builder.toString();
     }
 
-//    public ArrayList<Integer> loadHashes() throws IOException {
-//        List<String> lines = Files.readAllLines(pathToSave);
-//        lines.removeIf(line -> !line.startsWith("#"));
-//        ArrayList<Integer> hashes = new ArrayList<>();
-//        for (String line: lines) {
-//            hashes.add(Integer.valueOf(line.replaceAll("#", "")));
-//        }
-//        return hashes;
-//    }
-
+    /**
+     * Retrieve the URL to keywords map from a save file
+     *
+     * @return URL to list of keywords Hashmap
+     * @throws IOException
+     */
     public HashMap<String, ArrayList<String>> loadKeyMap() throws IOException{
         List<String> lines = Files.readAllLines(pathToSave);
         lines.removeIf(line -> !line.contains("|"));
@@ -89,6 +101,12 @@ public class SaveManager {
         return keyMap;
     }
 
+    /**
+     * Retrieve the logs data from a save file
+     *
+     * @return list of logs
+     * @throws IOException
+     */
     public ArrayList<String> loadLogs() throws IOException{
         List<String> lines = Files.readAllLines(pathToSave);
         lines.removeIf(line -> !line.contains("~"));

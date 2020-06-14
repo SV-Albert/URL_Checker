@@ -11,10 +11,16 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
-
 import java.io.IOException;
-import java.nio.file.Paths;
 
+
+/**
+ * Main class that starts the application and initiates the GUI Controller,
+ * DataManager and ThreadMonitor objects
+ *
+ * @version 0.1
+ * @author Albert Shakirzianov
+ */
 public class Main extends Application {
 
     private Stage stage;
@@ -27,10 +33,15 @@ public class Main extends Application {
         launch(args);
     }
 
+    /**
+     * The application start method
+     *
+     * @param stage
+     */
     @Override
     public void start(Stage stage) {
         this.stage = stage;
-        FXMLLoader controllerLoader =  new FXMLLoader(getClass().getResource("GUI_Layout.fxml"));
+        FXMLLoader controllerLoader = new FXMLLoader(getClass().getResource("GUI_Layout.fxml"));
 
         Parent root = new VBox();
         try {
@@ -68,6 +79,12 @@ public class Main extends Application {
         });
     }
 
+    /**
+     * Create a success notification when a match was found
+     *
+     * @param url of the website were match occurred
+     * @param keyword on which the match occurred
+     */
     public void successNotification(String url, String keyword){
         controller.addLogEntry(url, keyword);
         Notifications.create()
@@ -80,6 +97,11 @@ public class Main extends Application {
                 .show();
     }
 
+    /**
+     * Create an error notification
+     *
+     * @param message to display
+     */
     public void failNotification(String message){
         Notifications.create()
                 .darkStyle()
