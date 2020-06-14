@@ -9,7 +9,7 @@ import java.util.HashMap;
  * DataManager class is responsible for modifying the data used
  * by other objects
  *
- * @version 0.1
+ * @version 0.2
  * @author Albert Shakirzianov
  */
 public class DataManager {
@@ -195,7 +195,7 @@ public class DataManager {
      * @param message to display
      */
     synchronized public void error(String message){
-        Platform.runLater(() -> main.failNotification(message));
+        Platform.runLater(() -> main.errorNotification(message));
     }
 
     /**
@@ -204,20 +204,18 @@ public class DataManager {
      * @param url to open
      */
     public void openInBrowser(String url) {
-        if (Desktop.isDesktopSupported()) {
-            Desktop desktop = Desktop.getDesktop();
-            try {
+        try{
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
                 desktop.browse(new URI(url));
-            } catch (Exception e) {
-                error("Failed to open the link");
             }
-        } else {
-            Runtime runtime = Runtime.getRuntime();
-            try {
+            else {
+                Runtime runtime = Runtime.getRuntime();
                 runtime.exec("xdg-open " + url);
-            } catch (IOException e) {
-                error("Failed to open the link");
             }
+        }
+        catch (Exception e) {
+            error("Failed to open the link");
         }
     }
 }

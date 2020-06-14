@@ -1,23 +1,19 @@
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import javafx.util.Duration;
-import org.controlsfx.control.Notifications;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.IOException;
 
 
@@ -25,7 +21,7 @@ import java.io.IOException;
  * Main class that starts the application and initiates the GUI Controller,
  * DataManager and ThreadMonitor objects
  *
- * @version 0.1
+ * @version 0.2
  * @author Albert Shakirzianov
  */
 public class Main extends Application {
@@ -33,7 +29,9 @@ public class Main extends Application {
     private Stage stage;
     private GUIController controller;
     private DataManager dataManager;
-    private String version = "URL Spy v0.1";
+    private ThreadMonitor threadMonitor;
+    private String version = "URL Spy v0.2";
+    private TrayIcon trayIcon;
 
 
     public static void main(String[] args) {
@@ -54,13 +52,13 @@ public class Main extends Application {
         try {
             root = controllerLoader.load();
         } catch (IOException e) {
-            failNotification("Application start failed");
+            errorNotification("Application start failed");
         }
 
         dataManager = new DataManager(this);
         dataManager.load();
         controller = controllerLoader.getController();
-        ThreadMonitor threadMonitor = new ThreadMonitor(dataManager);
+        threadMonitor = new ThreadMonitor(dataManager);
         controller.setThreadMonitor(threadMonitor);
         controller.setDataManager(dataManager);
         controller.getRefreshMenuItem().setOnAction(e -> threadMonitor.refresh());
@@ -71,20 +69,22 @@ public class Main extends Application {
         Scene scene = new Scene(root, 900, 450);
         stage.setTitle(version);
         stage.setScene(scene);
-        stage.show();
+        showStage();
+        javax.swing.SwingUtilities.invokeLater(this::createTrayIcon);
 
         stage.getIcons().add(new Image(getClass().getResourceAsStream("URL_Spy_Logo.png")));
         Thread monitor = new Thread(threadMonitor);
         monitor.start();
         controller.repopulate();
 
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent t) {
-                Platform.exit();
-                System.exit(0);
-            }
-        });
+        Platform.setImplicitExit(false);
+    }
+
+    private void showStage(){
+        if(stage != null){
+            stage.show();
+            stage.toFront();
+        }
     }
 
     /**
@@ -95,14 +95,13 @@ public class Main extends Application {
      */
     public void successNotification(String url, String keyword){
         controller.addLogEntry(url, keyword);
-        Notifications.create()
-                .darkStyle()
-                .position(Pos.BOTTOM_RIGHT)
-                .title("Match found!")
-                .text("Match found at " + url + " on the \"" + keyword + "\" keyword ")
-                .onAction(e -> dataManager.openInBrowser(url))
-                .hideAfter(Duration.seconds(15))
-                .show();
+        javax.swing.SwingUtilities.invokeLater(() ->
+                trayIcon.displayMessage(
+                        "Match found",
+                        url + ": " + keyword,
+                        TrayIcon.MessageType.INFO
+                )
+        );
     }
 
     /**
@@ -110,14 +109,14 @@ public class Main extends Application {
      *
      * @param message to display
      */
-    public void failNotification(String message){
-        Notifications.create()
-                .darkStyle()
-                .position(Pos.BOTTOM_RIGHT)
-                .title("Something went wrong")
-                .text(message)
-                .hideAfter(Duration.seconds(10))
-                .show();
+    public void errorNotification(String message){
+        javax.swing.SwingUtilities.invokeLater(() ->
+                trayIcon.displayMessage(
+                        "Something went wrong",
+                        message,
+                        TrayIcon.MessageType.ERROR
+                )
+        );
     }
 
     /**
@@ -156,5 +155,38 @@ public class Main extends Application {
         aboutStage.getIcons().add(new Image(getClass().getResourceAsStream("URL_Spy_Logo.png")));
         aboutStage.show();
     }
+
+    /**
+     * Create the System tray icon
+     */
+    private void createTrayIcon(){
+        Toolkit.getDefaultToolkit();
+        if (SystemTray.isSupported()) {
+            try {
+                SystemTray tray = SystemTray.getSystemTray();
+                java.awt.Image iconImage = ImageIO.read(getClass().getResourceAsStream("URL_Spy_Logo.png"));
+                trayIcon = new TrayIcon(iconImage);
+                trayIcon.setImageAutoSize(true);
+                trayIcon.addActionListener(e -> Platform.runLater(this::showStage));
+                MenuItem refreshMenu = new MenuItem("Refresh");
+                refreshMenu.addActionListener(e -> threadMonitor.refresh());
+                MenuItem quitMenu = new MenuItem("Quit");
+                quitMenu.addActionListener(e -> {
+                    tray.remove(trayIcon);
+                    Platform.exit();
+                    System.exit(0);
+                });
+                PopupMenu popupMenu = new PopupMenu();
+                popupMenu.add(refreshMenu);
+                popupMenu.add(quitMenu);
+                trayIcon.setPopupMenu(popupMenu);
+                trayIcon.setToolTip(version);
+                tray.add(trayIcon);
+            } catch (AWTException | IOException e) {
+                errorNotification("Failed to initialize the system tray");
+            }
+        }
+    }
+
 
 }

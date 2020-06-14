@@ -1,6 +1,5 @@
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,7 +10,7 @@ import java.util.*;
  * A class responsible for generating save data, writing it to a file and retrieving
  * data from a file
  *
- * @version 0.1
+ * @version 0.2
  * @author Albert Shakirzianov
  */
 public class SaveManager {
@@ -44,7 +43,8 @@ public class SaveManager {
             Files.createFile(pathToSave);
         }
 
-        PrintWriter writer = new PrintWriter(new File(String.valueOf(pathToSave)));
+        OutputStream outputStream = new FileOutputStream(pathToSave.toString());
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
         writer.print(getSaveData());
         writer.close();
     }
@@ -56,7 +56,6 @@ public class SaveManager {
      */
     public String getSaveData(){
         HashMap<String, ArrayList<String>> urlMap = dataManager.getUrlKeyMap();
-//        List<Integer> hashes = monitor.getHashes();
 
         StringBuilder builder = new StringBuilder();
         SimpleDateFormat sdt = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");

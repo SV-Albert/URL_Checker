@@ -1,3 +1,4 @@
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -13,7 +14,7 @@ import java.util.Date;
 /**
  * FXML controller class for the application's GUI
  *
- * @version 0.1
+ * @version 0.2
  * @author Albert Shakirzianov
  */
 
@@ -191,6 +192,7 @@ public class GUIController {
      */
     @FXML
     private void quit(){
+        Platform.exit();
         System.exit(0);
     }
 

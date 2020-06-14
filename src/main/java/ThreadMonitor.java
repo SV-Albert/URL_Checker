@@ -6,7 +6,7 @@ import java.util.Set;
  * ThreadMonitor class is responsible for creating and updating the
  * CheckerThread objects
  *
- * @version 0.1
+ * @version 0.2
  * @author Albert Shakirzianov
  */
 public class ThreadMonitor implements Runnable{
