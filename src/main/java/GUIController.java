@@ -2,10 +2,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
@@ -28,6 +25,7 @@ public class GUIController {
     @FXML private ListView<String> keyView;
     @FXML private ListView<String> logView;
     @FXML private MenuItem refreshMenu;
+    @FXML private MenuItem aboutMenu;
     @FXML private Label versionLabel;
     private ThreadMonitor threadMonitor;
     private DataManager dataManager;
@@ -202,6 +200,19 @@ public class GUIController {
     @FXML
     public MenuItem getRefreshMenuItem(){ return refreshMenu; }
 
+    /**
+     * @return aboutMenu MenuItem
+     */
+    @FXML
+    public MenuItem getAboutMenuItem(){ return aboutMenu; }
+
+    /**
+     * Create a String log entry when a new match was found
+     * and add it to the logView
+     *
+     * @param url where the match was found
+     * @param keyword on which the match was found
+     */
     public void addLogEntry(String url, String keyword){
         SimpleDateFormat sdt = new SimpleDateFormat("HH:mm:ss/dd.MM");
         Date now = new Date();

@@ -27,7 +27,7 @@
         </Menu>
         <Menu id="helpMenu" mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem id="menuAbout" mnemonicParsing="false" text="About URL Checker" />
+            <MenuItem id="menuAbout" fx:id="aboutMenu" mnemonicParsing="false" text="About URL Spy" />
           </items>
         </Menu>
       </menus>

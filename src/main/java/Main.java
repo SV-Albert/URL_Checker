@@ -3,10 +3,17 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -57,6 +64,7 @@ public class Main extends Application {
         controller.setThreadMonitor(threadMonitor);
         controller.setDataManager(dataManager);
         controller.getRefreshMenuItem().setOnAction(e -> threadMonitor.refresh());
+        controller.getAboutMenuItem().setOnAction(e -> displayAboutWindow());
         controller.setVersion(version);
 
 
@@ -110,6 +118,43 @@ public class Main extends Application {
                 .text(message)
                 .hideAfter(Duration.seconds(10))
                 .show();
+    }
+
+    /**
+     * Create and display the About URL Spy window
+     */
+    private void displayAboutWindow(){
+        VBox root = new VBox();
+        Scene aboutPage = new Scene(root, 400, 180);
+        aboutPage.getStylesheets().add("guiStyle.css");
+
+        ImageView logo = new ImageView(new Image("URL_Spy_Logo.png"));
+        logo.setFitHeight(150);
+        logo.setFitWidth(150);
+        ImageView github = new ImageView(new Image("GitHub-Mark-32px.png"));
+        github.setOnMouseClicked(e -> dataManager.openInBrowser("https://github.com/SV-Albert/URL_Spy"));
+        github.setOnMouseEntered(e -> aboutPage.setCursor(Cursor.HAND));
+        github.setOnMouseExited(e -> aboutPage.setCursor(Cursor.DEFAULT));
+
+        Text ver = new Text(version);
+        Text copyright = new Text("\u00a9"+" 2020 Albert Shakirzianov");
+        VBox text = new VBox();
+        text.setAlignment(Pos.CENTER_LEFT);
+        text.getChildren().addAll(ver, copyright);
+
+        BorderPane info = new BorderPane();
+        info.setLeft(text);
+        info.setRight(github);
+
+        root.getChildren().addAll(logo, info);
+        root.getStyleClass().add("about-text");
+
+        Stage aboutStage = new Stage();
+        aboutStage.setScene(aboutPage);
+        aboutStage.setResizable(false);
+        aboutStage.setTitle("About URL Spy");
+        aboutStage.getIcons().add(new Image(getClass().getResourceAsStream("URL_Spy_Logo.png")));
+        aboutStage.show();
     }
 
 }

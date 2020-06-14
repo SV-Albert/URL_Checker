@@ -14,3 +14,14 @@
     -fx-font-family: "Courier New";
     -fx-font-size: 10;
 }
+
+.about-text{
+    -fx-font-family: "Courier New";
+    -fx-font-size: 15;
+    -fx-font-style: italic;
+    -fx-padding: 4px;
+}
+
+.github{
+    -fx-padding: 10px;
+}
