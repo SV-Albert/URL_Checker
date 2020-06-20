@@ -61,15 +61,18 @@ public class SaveManager {
      * @throws IOException
      */
     public void save() throws IOException {
-        if(!Files.exists(pathToSave)){
-            Files.createFile(pathToSave);
-        }
+        if(pathToSave != null ){
+            if(!Files.exists(pathToSave)){
+                Files.createFile(pathToSave);
+            }
 
-        OutputStream outputStream = new FileOutputStream(pathToSave.toString());
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
-        writer.print(getSaveData());
-        writer.close();
+            OutputStream outputStream = new FileOutputStream(pathToSave.toString());
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
+            writer.print(getSaveData());
+            writer.close();
+        }
     }
+
 
     /**
      * Generate a String with save data
