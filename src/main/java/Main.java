@@ -1,6 +1,5 @@
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -19,7 +18,6 @@ import org.controlsfx.control.Notifications;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.text.html.CSS;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +28,7 @@ import java.util.prefs.Preferences;
  * Main class that starts the application and initiates the GUI Controller,
  * DataManager and ThreadMonitor objects
  *
- * @version 0.2
+ * @version 0.3
  * @author Albert Shakirzianov
  */
 public class Main extends Application {
@@ -39,7 +37,7 @@ public class Main extends Application {
     private GUIController controller;
     private DataManager dataManager;
     private ThreadMonitor threadMonitor;
-    private final String version = "URL Spy v0.2";
+    private final String version = "URL Spy v0.3";
     private TrayIcon trayIcon;
     private FileChooser fileChooser;
     private Preferences preferences;

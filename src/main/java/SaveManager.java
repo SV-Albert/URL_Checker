@@ -11,7 +11,7 @@ import java.util.prefs.Preferences;
  * A class responsible for generating save data, writing it to a file and retrieving
  * data from a file
  *
- * @version 0.2
+ * @version 0.3
  * @author Albert Shakirzianov
  */
 public class SaveManager {

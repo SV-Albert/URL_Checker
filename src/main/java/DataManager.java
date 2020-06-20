@@ -9,7 +9,7 @@ import java.util.HashMap;
  * DataManager class is responsible for modifying the data used
  * by other objects
  *
- * @version 0.2
+ * @version 0.3
  * @author Albert Shakirzianov
  */
 public class DataManager {
@@ -209,5 +209,8 @@ public class DataManager {
         }
     }
 
+    /**
+     * @return SaveManager object
+     */
     public SaveManager getSaveManager(){ return saveManager; }
 }
