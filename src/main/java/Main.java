@@ -1,5 +1,6 @@
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -8,13 +9,21 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.text.html.CSS;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 
 /**
@@ -30,9 +39,10 @@ public class Main extends Application {
     private GUIController controller;
     private DataManager dataManager;
     private ThreadMonitor threadMonitor;
-    private String version = "URL Spy v0.2";
+    private final String version = "URL Spy v0.2";
     private TrayIcon trayIcon;
-
+    private FileChooser fileChooser;
+    private Preferences preferences;
 
     public static void main(String[] args) {
         launch(args);
@@ -59,17 +69,17 @@ public class Main extends Application {
         dataManager.load();
         controller = controllerLoader.getController();
         threadMonitor = new ThreadMonitor(dataManager);
-        controller.setThreadMonitor(threadMonitor);
-        controller.setDataManager(dataManager);
-        controller.getRefreshMenuItem().setOnAction(e -> threadMonitor.refresh());
-        controller.getAboutMenuItem().setOnAction(e -> displayAboutWindow());
-        controller.setVersion(version);
+        fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt"));
+        preferences = Preferences.userNodeForPackage(Main.class);
 
+        setupController();
 
         Scene scene = new Scene(root, 900, 450);
         stage.setTitle(version);
         stage.setScene(scene);
         showStage();
+
         javax.swing.SwingUtilities.invokeLater(this::createTrayIcon);
 
         stage.getIcons().add(new Image(getClass().getResourceAsStream("URL_Spy_Logo.png")));
@@ -80,6 +90,9 @@ public class Main extends Application {
         Platform.setImplicitExit(false);
     }
 
+    /**
+     * Show the JavaFX stage
+     */
     private void showStage(){
         if(stage != null){
             stage.show();
@@ -88,20 +101,47 @@ public class Main extends Application {
     }
 
     /**
+     * Give the controller referenced to ThreadMonitor and DataManager
+     * objects, as well as set action handlers for the menu items
+     */
+    private void setupController(){
+        controller.setThreadMonitor(threadMonitor);
+        controller.setDataManager(dataManager);
+        controller.setVersion(version);
+        controller.getQuitMenuItem().setOnAction(e -> quit());
+        controller.getRefreshMenuItem().setOnAction(e -> threadMonitor.refresh());
+        controller.getAboutMenuItem().setOnAction(e -> displayAboutWindow());
+        controller.getSaveMenuItem().setOnAction(e -> handleSave());
+        controller.getSaveAsMenuItem().setOnAction(e -> handleSaveAs());
+        controller.getOpenMenuItem().setOnAction(e -> handleOpen());
+    }
+
+    /**
      * Create a success notification when a match was found
      *
      * @param url of the website were match occurred
      * @param keyword on which the match occurred
      */
-    public void successNotification(String url, String keyword){
+    public void matchNotification(String url, String keyword){
         controller.addLogEntry(url, keyword);
-        javax.swing.SwingUtilities.invokeLater(() ->
-                trayIcon.displayMessage(
-                        "Match found",
-                        url + ": " + keyword,
-                        TrayIcon.MessageType.INFO
-                )
-        );
+        if(SystemTray.isSupported()) {
+            SwingUtilities.invokeLater(() ->
+                    trayIcon.displayMessage(
+                            "Match found",
+                            url + ": " + keyword,
+                            TrayIcon.MessageType.INFO
+                    )
+            );
+        }
+        else{
+            Notifications.create()
+                .onAction(e -> dataManager.openInBrowser(url))
+                .position(Pos.BOTTOM_RIGHT)
+                .title("Match found")
+                .text(url + ": " + keyword)
+                .hideAfter(Duration.seconds(10))
+                .showInformation();
+        }
     }
 
     /**
@@ -110,13 +150,33 @@ public class Main extends Application {
      * @param message to display
      */
     public void errorNotification(String message){
-        javax.swing.SwingUtilities.invokeLater(() ->
-                trayIcon.displayMessage(
-                        "Something went wrong",
-                        message,
-                        TrayIcon.MessageType.ERROR
-                )
-        );
+        if(SystemTray.isSupported()){
+            SwingUtilities.invokeLater(() ->
+                    trayIcon.displayMessage(
+                            "Something went wrong",
+                            message,
+                            TrayIcon.MessageType.ERROR
+                    )
+            );
+        }
+        else{
+            Notifications.create()
+                    .position(Pos.BOTTOM_RIGHT)
+                    .title("Something went wrong")
+                    .text(message)
+                    .hideAfter(Duration.seconds(10))
+                    .showWarning();
+        }
+    }
+
+    /**
+     * Stop the application
+     */
+    private void quit(){
+        dataManager.save();
+        SystemTray.getSystemTray().remove(trayIcon);
+        Platform.exit();
+        System.exit(0);
     }
 
     /**
@@ -124,7 +184,9 @@ public class Main extends Application {
      */
     private void displayAboutWindow(){
         VBox root = new VBox();
-        Scene aboutPage = new Scene(root, 400, 180);
+        root.setPrefWidth(400);
+        root.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        Scene aboutPage = new Scene(root);
         aboutPage.getStylesheets().add("guiStyle.css");
 
         ImageView logo = new ImageView(new Image("URL_Spy_Logo.png"));
@@ -137,6 +199,8 @@ public class Main extends Application {
 
         Text ver = new Text(version);
         Text copyright = new Text("\u00a9"+" 2020 Albert Shakirzianov");
+        ver.getStyleClass().add("about-text");
+        copyright.getStyleClass().add("about-text");
         VBox text = new VBox();
         text.setAlignment(Pos.CENTER_LEFT);
         text.getChildren().addAll(ver, copyright);
@@ -146,7 +210,7 @@ public class Main extends Application {
         info.setRight(github);
 
         root.getChildren().addAll(logo, info);
-        root.getStyleClass().add("about-text");
+        root.getStyleClass().add("about-window");
 
         Stage aboutStage = new Stage();
         aboutStage.setScene(aboutPage);
@@ -188,5 +252,45 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * Check if the path to the last save file is set in preferences,
+     * save to the file if yes, prompt the user to choose a path to a new
+     * save if no
+     */
+    private void handleSave(){
+        if(preferences.get("pathToLastSave", null) == null){
+            handleSaveAs();
+        }
+        else{
+            dataManager.save();
+        }
+    }
+
+    /**
+     * Prompt the user to choose a path to a new save file, update the
+     * preferences with the new location and save the data to it
+     */
+    private void handleSaveAs(){
+        File saveFile = fileChooser.showSaveDialog(stage);
+        if(saveFile != null){
+            dataManager.getSaveManager().setPathToSave(saveFile.toPath());
+            dataManager.save();
+            preferences.put("pathToLastSave", saveFile.getPath());
+        }
+    }
+
+    /**
+     * Prompt the user to choose a path to an existing save file and
+     * load the data from it
+     */
+    private void handleOpen(){
+        File saveFile = fileChooser.showOpenDialog(stage);
+        if(saveFile != null && saveFile.getPath().endsWith(".txt")){
+            dataManager.getSaveManager().setPathToSave(saveFile.toPath());
+            dataManager.load();
+            preferences.put("pathToLastSave", saveFile.getPath());
+            controller.repopulate();
+        }
+    }
 
 }

@@ -1,27 +1,120 @@
+
+* {
+    -fx-highlight-color: #ff9c12;
+    -fx-base-color: #2b2b2b;
+    -fx-secondary-color: #34373e;
+}
 .root {
-    -fx-accent: #ff9c12;
-    -fx-focus-color: #ff9c12;
+    -fx-accent: -fx-highlight-color;
+    -fx-focus-color: -fx-highlight-color;
+    -fx-focus-traversable: true;
+    -fx-background-color: -fx-base-color;
     -fx-font-family: "Arial";
     -fx-font-size: 13;
 }
 
-.views-section{
+.list-view{
     -fx-font-family: "Courier New";
-    -fx-font-size: 13;
+    -fx-font-size: 14;
+    -fx-border-color: #292b31;
+    -fx-control-inner-background: -fx-secondary-color;
 }
+
+.list-view .list-cell:filled:selected:focused{
+    -fx-background-color: -fx-highlight-color;
+}
+
+.text-field {
+    -fx-background-color: -fx-secondary-color;
+    -fx-prompt-text-fill: rgba(255, 156, 18, 0.63);
+    -fx-text-fill: -fx-highlight-color;
+}
+
+.buttons{
+    -fx-background-color: -fx-secondary-color;
+    -fx-text-fill: -fx-highlight-color;
+}
+
+.menu-button {
+    -fx-text-fill: white;
+}
+
+.menu-bar{
+    -fx-background-color: -fx-secondary-color;
+}
+
+.menu-bar > .container > .menu-button:hover >.label,
+.menu-bar > .container > .menu-button:focused >.label,
+.menu-bar > .container > .menu-button:showing >.label{
+    -fx-text-fill: white;
+}
+
+.menu-item:focused .label, .menu-item:hover .label{
+    -fx-text-fill: white;
+}
+
+.separator *.line{
+    -fx-border-color: -fx-base-color;
+    -fx-border-style: solid;
+}
+
+.context-menu {
+    -fx-background-color: -fx-secondary-color;
+}
+
 
 .version-section{
     -fx-font-family: "Courier New";
-    -fx-font-size: 10;
+    -fx-font-size: 11;
 }
 
-.about-text{
+.about-window{
     -fx-font-family: "Courier New";
     -fx-font-size: 15;
     -fx-font-style: italic;
     -fx-padding: 4px;
+    -fx-background-color: -fx-base-color;
 }
 
 .github{
     -fx-padding: 10px;
+}
+
+.label{
+    -fx-text-fill: -fx-highlight-color;
+}
+
+.about-text {
+    -fx-fill: -fx-highlight-color;
+}
+
+.name-label{
+    -fx-background-color: -fx-secondary-color;
+    -fx-border-color: -fx-base-color;
+    -fx-border-radius: 10 10 0 0;
+    -fx-background-radius: 10 10 0 0;
+}
+
+.scroll-bar{
+    -fx-background-color: transparent;
+}
+
+.scroll-bar > .track{
+    -fx-background-color: transparent;
+    -fx-border-color: -fx-base-color;
+    -fx-border-radius: 10 10 10 10;
+}
+
+.scroll-bar > .thumb{
+    -fx-background-color: -fx-base-color;
+    -fx-background-radius : 2em;
+}
+
+.increment-button:hover, .decrement-button:hover {
+    -fx-background-color: -fx-highlight-color;
+    -fx-border-color: transparent;
+}
+
+.list-view > .virtual-flow > .corner{
+    -fx-background-color: transparent;
 }

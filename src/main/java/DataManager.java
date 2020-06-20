@@ -27,27 +27,25 @@ public class DataManager {
      */
     public DataManager(Main main){
         this.main = main;
-        try {
-            saveManager = new SaveManager(this);
-        } catch (IOException e) {
-            error("Could not create a save file");
-        }
+        saveManager = new SaveManager(this);
     }
 
     /**
      * Load the data from the save manager
      */
     synchronized public void load(){
-        try{
-            urlKeyMap = saveManager.loadKeyMap();
-            logList = saveManager.loadLogs();
-        }
-        catch (IOException e) {
-            error("Unable to load a save file");
-            urlKeyMap = new HashMap<>();
-            logList = new ArrayList<>();
-        }
+        urlKeyMap = new HashMap<>();
+        logList = new ArrayList<>();
         hashList = new ArrayList<>();
+        if(saveManager.isPathSet()){
+            try{
+                urlKeyMap = saveManager.loadKeyMap();
+                logList = saveManager.loadLogs();
+            }
+            catch (IOException e) {
+                error("Unable to load a save file");
+            }
+        }
     }
 
     /**
@@ -57,7 +55,6 @@ public class DataManager {
      */
     synchronized public void addUrl(String url){
         urlKeyMap.put(url, new ArrayList<>());
-        save();
     }
 
     /**
@@ -68,7 +65,6 @@ public class DataManager {
     synchronized public void deleteUrl(String url) {
         urlKeyMap.get(url).clear();
         urlKeyMap.remove(url);
-        save();
     }
 
     /**
@@ -79,7 +75,6 @@ public class DataManager {
      */
     synchronized public void addKeyword(String url, String keyword){
         urlKeyMap.get(url).add(keyword);
-        save();
     }
 
     /**
@@ -90,7 +85,6 @@ public class DataManager {
      */
     synchronized public void deleteKeyword(String url, String keyword) {
         urlKeyMap.get(url).remove(keyword);
-        save();
     }
 
     /**
@@ -137,7 +131,6 @@ public class DataManager {
      */
     synchronized public void addLogEntry(String log){
         logList.add(log);
-        save();
     }
 
     /**
@@ -147,7 +140,6 @@ public class DataManager {
      */
     synchronized public void removeLogEntry(String log) {
         logList.remove(log);
-        save();
     }
 
     /**
@@ -155,7 +147,6 @@ public class DataManager {
      */
     synchronized public void clearLogs(){
         logList.clear();
-        save();
     }
 
     /**
@@ -174,7 +165,7 @@ public class DataManager {
         try {
             saveManager.save();
         } catch (IOException e) {
-            error("An exception occurred while saving");
+            error("Saving failed");
         }
     }
 
@@ -185,8 +176,7 @@ public class DataManager {
      * @param keyword on which the match occurred
      */
     synchronized public void matchFound(String url, String keyword){
-        Platform.runLater(() -> main.successNotification(url, keyword));
-        save();
+        Platform.runLater(() -> main.matchNotification(url, keyword));
     }
 
     /**
@@ -218,4 +208,6 @@ public class DataManager {
             error("Failed to open the link");
         }
     }
+
+    public SaveManager getSaveManager(){ return saveManager; }
 }

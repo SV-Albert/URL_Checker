@@ -25,8 +25,12 @@ public class GUIController {
     @FXML private ListView<String> urlView;
     @FXML private ListView<String> keyView;
     @FXML private ListView<String> logView;
+    @FXML private MenuItem quitMenu;
     @FXML private MenuItem refreshMenu;
     @FXML private MenuItem aboutMenu;
+    @FXML private MenuItem openMenu;
+    @FXML private MenuItem saveMenu;
+    @FXML private MenuItem saveAsMenu;
     @FXML private Label versionLabel;
     private ThreadMonitor threadMonitor;
     private DataManager dataManager;
@@ -78,24 +82,18 @@ public class GUIController {
      * URl in a default browser
      */
     private void setUrlOpenEvent(){
-        logView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(event.getClickCount() >= 2){
-                    String selectedEntry = logView.getSelectionModel().getSelectedItem();
-                    int endIndex = selectedEntry.indexOf(" on");
-                    String url = selectedEntry.substring(0, endIndex);
-                    dataManager.openInBrowser(url);
-                }
+        logView.setOnMouseClicked(event -> {
+            if(event.getClickCount() >= 2){
+                String selectedEntry = logView.getSelectionModel().getSelectedItem();
+                int endIndex = selectedEntry.indexOf(" on");
+                String url = selectedEntry.substring(0, endIndex);
+                dataManager.openInBrowser(url);
             }
         });
-        urlView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(event.getClickCount() >= 2){
-                    String selectedUrl = urlView.getSelectionModel().getSelectedItem();
-                    dataManager.openInBrowser(selectedUrl);
-                }
+        urlView.setOnMouseClicked(event -> {
+            if(event.getClickCount() >= 2){
+                String selectedUrl = urlView.getSelectionModel().getSelectedItem();
+                dataManager.openInBrowser(selectedUrl);
             }
         });
     }
@@ -188,13 +186,24 @@ public class GUIController {
     }
 
     /**
-     * Stop the application
+     * @return saveMenu MenuItem
      */
-    @FXML
-    private void quit(){
-        Platform.exit();
-        System.exit(0);
-    }
+    public MenuItem getSaveMenuItem(){ return saveMenu; }
+
+    /**
+     * @return saveAsMenu MenuItem
+     */
+    public MenuItem getSaveAsMenuItem(){ return saveAsMenu; }
+
+    /**
+     * @return openMenu MenuItem
+     */
+    public MenuItem getOpenMenuItem(){ return openMenu; }
+
+    /**
+     * @return quitMenu MenuItem
+     */
+    public MenuItem getQuitMenuItem(){ return quitMenu; }
 
     /**
      * @return refreshMenu MenuItem

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * A class responsible for generating save data, writing it to a file and retrieving
@@ -15,22 +16,42 @@ import java.util.*;
  */
 public class SaveManager {
 
-    private final Path pathToSave;
+    private Path pathToSave;
+    private boolean isPathSet;
     private final DataManager dataManager;
 
     /**
      * Constructor for the SaveManager class
      *
      * @param dataManager
-     * @throws IOException
      */
-    public SaveManager(DataManager dataManager) throws IOException {
-        pathToSave = Paths.get(System.getProperty("user.dir") + "\\.url_spy_data.txt");
+    public SaveManager(DataManager dataManager){
         this.dataManager = dataManager;
-
-        if(!Files.exists(pathToSave)){
-            Files.createFile(pathToSave);
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+        if(prefs.get("pathToLastSave", null) == null){
+            isPathSet = false;
         }
+        else {
+            pathToSave = Paths.get(prefs.get("pathToLastSave", null));
+            isPathSet = true;
+        }
+    }
+
+    /**
+     * Set the path to a save file
+     * @param pathToSave
+     */
+    public void setPathToSave(Path pathToSave){
+        this.pathToSave = pathToSave;
+    }
+
+    /**
+     * Return true if the object has a path to a save file
+     *
+     * @return true if path is set
+     */
+    public boolean isPathSet(){
+        return isPathSet;
     }
 
     /**
@@ -115,4 +136,5 @@ public class SaveManager {
         }
         return logs;
     }
+
 }
