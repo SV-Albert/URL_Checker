@@ -31,6 +31,7 @@ public class GUIController {
     @FXML private MenuItem openMenu;
     @FXML private MenuItem saveMenu;
     @FXML private MenuItem saveAsMenu;
+    @FXML private MenuItem bugMenu;
     @FXML private Label versionLabel;
     private ThreadMonitor threadMonitor;
     private DataManager dataManager;
@@ -216,6 +217,13 @@ public class GUIController {
      */
     @FXML
     public MenuItem getAboutMenuItem(){ return aboutMenu; }
+
+    /**
+     * @return bugMenu MenuItem
+     */
+    @FXML
+    public MenuItem getBugMenuItem(){ return bugMenu; }
+
 
     /**
      * Create a String log entry when a new match was found

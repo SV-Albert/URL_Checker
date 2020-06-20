@@ -37,6 +37,7 @@
         <Menu id="helpMenu" mnemonicParsing="false" text="Help">
           <items>
             <MenuItem id="menuAbout" fx:id="aboutMenu" mnemonicParsing="false" text="About URL Spy" />
+                  <MenuItem fx:id="bugMenu" mnemonicParsing="false" text="Report a bug" />
           </items>
         </Menu>
       </menus>

@@ -112,6 +112,7 @@ public class Main extends Application {
         controller.getSaveMenuItem().setOnAction(e -> handleSave());
         controller.getSaveAsMenuItem().setOnAction(e -> handleSaveAs());
         controller.getOpenMenuItem().setOnAction(e -> handleOpen());
+        controller.getBugMenuItem().setOnAction(e -> dataManager.openInBrowser("https://github.com/SV-Albert/URL_Spy/issues/new"));
     }
 
     /**
