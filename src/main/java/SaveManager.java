@@ -43,6 +43,7 @@ public class SaveManager {
      */
     public void setPathToSave(Path pathToSave){
         this.pathToSave = pathToSave;
+        isPathSet = true;
     }
 
     /**

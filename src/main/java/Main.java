@@ -123,7 +123,16 @@ public class Main extends Application {
      */
     public void matchNotification(String url, String keyword){
         controller.addLogEntry(url, keyword);
-        if(SystemTray.isSupported()) {
+        if(System.getProperty("os.name").contains("Mac")){
+            try{
+                Runtime.getRuntime().exec(new String[] {"osascript", "-e", "display notification \"" + url + ": " + keyword +
+                        "\"" + " with title \"" + "Match found!" + "\""});
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        else if(SystemTray.isSupported()) {
             SwingUtilities.invokeLater(() ->
                     trayIcon.displayMessage(
                             "Match found",
@@ -149,7 +158,16 @@ public class Main extends Application {
      * @param message to display
      */
     public void errorNotification(String message){
-        if(SystemTray.isSupported()){
+        if(System.getProperty("os.name").contains("Mac")){
+            try{
+                Runtime.getRuntime().exec(new String[] {"osascript", "-e", "display notification \"" + message +
+                        "\"" + " with title \"" + "Something went wrong" + "\""});
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        else if(SystemTray.isSupported()){
             SwingUtilities.invokeLater(() ->
                     trayIcon.displayMessage(
                             "Something went wrong",
@@ -173,7 +191,9 @@ public class Main extends Application {
      */
     private void quit(){
         dataManager.save();
-        SystemTray.getSystemTray().remove(trayIcon);
+        if(!System.getProperty("os.name").contains("Mac") && SystemTray.isSupported()){
+            SystemTray.getSystemTray().remove(trayIcon);
+        }
         Platform.exit();
         System.exit(0);
     }
