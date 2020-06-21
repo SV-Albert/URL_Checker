@@ -6,7 +6,7 @@ import java.util.Set;
  * ThreadMonitor class is responsible for creating and updating the
  * CheckerThread objects
  *
- * @version 0.3
+ * @version 0.4
  * @author Albert Shakirzianov
  */
 public class ThreadMonitor implements Runnable{
@@ -58,7 +58,7 @@ public class ThreadMonitor implements Runnable{
         Thread thread = new Thread(checker);
         threadMap.put(checker, thread);
         checkerMap.put(url, checker);
-        System.out.println("Thread " + thread.toString() + " is created");
+        System.out.println(thread.toString() + " is created");
         thread.start();
     }
 

@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * CheckerThread is a runnable object that checks a particular URL
  * for updates that include specified keywords
  *
- * @version 0.3
+ * @version 0.4
  * @author Albert Shakirzianov
  */
 public class CheckerThread implements Runnable {
@@ -56,8 +56,8 @@ public class CheckerThread implements Runnable {
             }
 
             try{
-                System.out.println("Thread " + Thread.currentThread().toString() +  " is sleeping...");
-                Thread.sleep(10000);
+                System.out.println(Thread.currentThread().toString() +  " is sleeping...");
+                Thread.sleep(30000);
             }
             catch (InterruptedException e){
                 System.out.println(Thread.currentThread().toString() + " is awoken");

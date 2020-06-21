@@ -14,7 +14,7 @@ import java.util.Date;
 /**
  * FXML controller class for the application's GUI
  *
- * @version 0.3
+ * @version 0.4
  * @author Albert Shakirzianov
  */
 

@@ -28,7 +28,7 @@ import java.util.prefs.Preferences;
  * Main class that starts the application and initiates the GUI Controller,
  * DataManager and ThreadMonitor objects
  *
- * @version 0.3
+ * @version 0.4
  * @author Albert Shakirzianov
  */
 public class Main extends Application {
@@ -37,7 +37,7 @@ public class Main extends Application {
     private GUIController controller;
     private DataManager dataManager;
     private ThreadMonitor threadMonitor;
-    private final String version = "URL Spy v0.3";
+    private final String version = "URL Spy v0.4";
     private TrayIcon trayIcon;
     private FileChooser fileChooser;
     private Preferences preferences;
@@ -74,7 +74,7 @@ public class Main extends Application {
         setupController();
 
         Scene scene = new Scene(root, 900, 450);
-        stage.setTitle(version);
+        setStageTitle();
         stage.setScene(scene);
         showStage();
 
@@ -95,6 +95,15 @@ public class Main extends Application {
         if(stage != null){
             stage.show();
             stage.toFront();
+        }
+    }
+
+    private void setStageTitle(){
+        if(preferences.get("pathToLastSave", null) != null){
+            stage.setTitle(version + " - " + preferences.get("pathToLastSave", null));
+        }
+        else{
+            stage.setTitle(version);
         }
     }
 
@@ -282,6 +291,7 @@ public class Main extends Application {
         }
         else{
             dataManager.save();
+            setStageTitle();
         }
     }
 
@@ -295,6 +305,7 @@ public class Main extends Application {
             dataManager.getSaveManager().setPathToSave(saveFile.toPath());
             dataManager.save();
             preferences.put("pathToLastSave", saveFile.getPath());
+            setStageTitle();
         }
     }
 
@@ -309,7 +320,7 @@ public class Main extends Application {
             dataManager.load();
             preferences.put("pathToLastSave", saveFile.getPath());
             controller.repopulate();
+            setStageTitle();
         }
     }
-
 }

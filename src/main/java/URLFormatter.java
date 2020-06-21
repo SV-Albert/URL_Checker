@@ -8,7 +8,7 @@ import java.net.URL;
  * URLFormatter class is responsible for formatting and verifying the connection
  * to the URLs that the user inputs
  *
- * @version 0.3
+ * @version 0.4
  * @author Albert Shakirzianov
  */
 public class URLFormatter {

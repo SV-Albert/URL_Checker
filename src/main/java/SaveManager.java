@@ -11,7 +11,7 @@ import java.util.prefs.Preferences;
  * A class responsible for generating save data, writing it to a file and retrieving
  * data from a file
  *
- * @version 0.3
+ * @version 0.4
  * @author Albert Shakirzianov
  */
 public class SaveManager {
@@ -120,6 +120,9 @@ public class SaveManager {
         for(String line: lines){
             String url = line.substring(0, line.indexOf('|'));
             ArrayList<String> keywords = new ArrayList<>(Arrays.asList(line.substring(line.indexOf('|') + 1).split(",")));
+            if(keywords.get(0).isEmpty()){
+                keywords.remove(0);
+            }
             keyMap.put(url, keywords);
         }
         return keyMap;
